@@ -11,10 +11,17 @@
 #include "printf.h"
 #endif /* ! DEBUG_0 */
 
+#define HEAP_BLOCK_SIZE 128 * sizeof(U8) // 128 bytes
+
 /* ----- Global Variables ----- */
 U32 *gp_stack; /* The last allocated stack low address. 8 bytes aligned */
                /* The first stack starts at the RAM high address */
 	       /* stack grows down. Fully decremental stack */
+struct free_heap_block {
+	struct free_heap_block* next;
+};
+
+struct free_heap_block* gp_free_space;
 
 /**
  * @brief: Initialize RAM as follows:
@@ -27,7 +34,7 @@ U32 *gp_stack; /* The last allocated stack low address. 8 bytes aligned */
           |                           |
           |        HEAP               |
           |                           |
-          |---------------------------|
+          |---------------------------|<--- p_end (during initialization)
           |        PCB 2              |
           |---------------------------|
           |        PCB 1              |
@@ -48,15 +55,21 @@ void memory_init(void)
 {
 	U8 *p_end = (U8 *)&Image$$RW_IRAM1$$ZI$$Limit;
 	int i;
+	U32* p_heap;
   
 	/* 4 bytes padding */
 	p_end += 4;
 
 	/* allocate memory for pcb pointers   */
 	gp_pcbs = (PCB **)p_end;
-	p_end += NUM_TEST_PROCS * sizeof(PCB *);
+	p_end += (NUM_TEST_PROCS + 1) * sizeof(PCB *);
   
-	for ( i = 0; i < NUM_TEST_PROCS; i++ ) {
+	/* allocate memory for priority array */
+	gp_pqueue = (QUEUE *)p_end;
+	p_end += NUM_PRIORITIES * sizeof(QUEUE);
+	
+	/* allocate memory for PCBs */
+	for ( i = 0; i < NUM_TEST_PROCS + 1; i++ ) {
 		gp_pcbs[i] = (PCB *)p_end;
 		p_end += sizeof(PCB); 
 	}
@@ -72,7 +85,15 @@ void memory_init(void)
 		--gp_stack; 
 	}
   
-	/* allocate memory for heap, not implemented yet*/
+	/* allocate memory for heap*/
+	
+	gp_free_space = NULL;
+	//for(p_heap = (U32 *)p_end; p_heap < gp_stack; p_heap += HEAP_BLOCK_SIZE) {
+	for(p_heap = (U32 *)p_end; p_heap < (U32*)p_end + 2 * HEAP_BLOCK_SIZE; p_heap += HEAP_BLOCK_SIZE) {
+		struct free_heap_block* next_block = (struct free_heap_block *)p_heap;
+		next_block->next = gp_free_space;
+		gp_free_space = next_block;
+	}
   
 }
 
@@ -99,15 +120,41 @@ U32 *alloc_stack(U32 size_b)
 }
 
 void *k_request_memory_block(void) {
+	void* mem_alloced = (void *)gp_free_space;
 #ifdef DEBUG_0 
 	printf("k_request_memory_block: entering...\n");
 #endif /* ! DEBUG_0 */
-	return (void *) NULL;
+	
+	// No free heap memory -> block thread
+	while (gp_free_space == NULL) {
+		k_add_blocked(); // suspends the process, resumes after here
+	}
+	// TODO : Add current process to the blocked queue, switch to next process
+
+	// If there is a free heap block, approve the request (pop it off the stack of free_heap_block_s)
+	gp_free_space = gp_free_space->next;
+	
+	return mem_alloced;
 }
 
 int k_release_memory_block(void *p_mem_blk) {
 #ifdef DEBUG_0 
 	printf("k_release_memory_block: releasing block @ 0x%x\n", p_mem_blk);
 #endif /* ! DEBUG_0 */
+	
+	// !!! Assuming p_mem_blk is allocated, and can be freed by current process
+
+	// Push p_mem_blk onto stack of free_heap_block_s
+	{
+		struct free_heap_block* next_block = (struct free_heap_block *)p_mem_blk;
+		next_block->next = gp_free_space;
+		gp_free_space = next_block;
+	}
+	
+	if (g_num_blocked > 0) {
+		g_released_memory = 1;
+		k_release_processor();
+	}
+	
 	return RTX_OK;
 }

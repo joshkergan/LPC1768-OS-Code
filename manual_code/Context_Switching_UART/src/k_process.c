@@ -45,6 +45,9 @@ void enqueue(QUEUE *q, PCB *program) {
 	if (!q || !program)
 		return;
 	
+	if (program->m_pid == 0)
+		uart0_put_string("Success!");
+	
 	program->mp_next = NULL;
 	
 	if (!q->first || !q->last) {
@@ -157,14 +160,26 @@ int k_set_process_priority(int process_id, int priority) {
 	if (priority < 0 || priority > 3)
 		return -1;
 	
+	if (process_id == gp_current_process->m_pid) {
+		// Modifying the priority of the running process
+		gp_current_process->m_priority = priority;
+		if (priority >= gp_current_process->m_priority)
+			k_release_processor();
+		
+		return 0;
+	}
+	
 	process = remove_by_PID(process_id);
 	if (!process)
 		return -1;
 	
 	process->m_priority = priority;
-	
 	enqueue(&gp_pqueue[priority], process);
-	k_release_processor();
+	// process is set to a higher priority than running process
+	if (priority < gp_current_process->m_priority) {
+		k_release_processor();
+	}
+	
 	return 0;
 }
 
@@ -174,6 +189,9 @@ int k_set_process_priority(int process_id, int priority) {
 int get_process_priority(int process_id) {
 	int i;
 	PCB* cur_program;
+	
+	if (process_id == gp_current_process->m_pid)
+		return gp_current_process->m_priority;
 	
 	for (i = 0; i < NUM_PRIORITIES; i++) {
 		cur_program = gp_pqueue[i].first;
@@ -241,13 +259,23 @@ void process_init()
 	printf("debug\n");
 }
 
+void add_to_priority_queue(PCB *process) {
+	if (!process)
+		return;
+	
+	if (process->m_pid == 0)
+		return;
+	
+	process->m_state = RDY;
+	enqueue(&gp_pqueue[process->m_priority], process);
+}
+
 /*@brief: scheduler, pick the pid of the next to run process
  *@return: PCB pointer of the next to run process
  *         NULL if error happens
  *POST: if gp_current_process was NULL, then it gets set to pcbs[0].
  *      No other effect on other global variables.
  */
-
 PCB *scheduler(void)
 {
 	int i;
@@ -266,7 +294,7 @@ PCB *scheduler(void)
 			process->m_state = RDY;
 			g_num_blocked--;
 			process = remove_by_PID(process->m_pid);
-			enqueue(&gp_pqueue[process->m_priority], process);
+			//enqueue(&gp_pqueue[process->m_priority], process);
 			g_released_memory = 0;
 			return process;
 		}
@@ -279,27 +307,20 @@ PCB *scheduler(void)
 		if (!first_process)
 			continue;
 		
-		enqueue(&gp_pqueue[i], first_process);
-		
-		if (first_process->m_state != BLOCKED) {
+		if (first_process->m_state != BLOCKED)
 			return first_process;
-		}
+		else
+			enqueue(&gp_pqueue[i], first_process);
 		
 		process = dequeue(&gp_pqueue[i]);
 		while (process != first_process) {
 			if (process->m_state != BLOCKED) {
-				enqueue(&gp_pqueue[i], process);
 				return process;
 			}
 				
 			enqueue(&gp_pqueue[i], process);
 			process = dequeue(&gp_pqueue[i]);
 		}
-		//process = dequeue(&gp_pqueue[i]);
-		//if (process) {
-		//	enqueue(&gp_pqueue[i], process);
-		//	return process;
-		//}
 	}
 	
 	// All processes busy, run the null process
@@ -361,9 +382,13 @@ int k_release_processor(void)
 		gp_current_process = p_pcb_old; // revert back to the old process
 		return RTX_ERR;
 	}
+	
         if ( p_pcb_old == NULL ) {
 		p_pcb_old = gp_current_process;
+	} else {
+		add_to_priority_queue(p_pcb_old);
 	}
+	
 	process_switch(p_pcb_old);
 	return RTX_OK;
 }

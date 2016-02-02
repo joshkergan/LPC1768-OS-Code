@@ -90,7 +90,7 @@ void memory_init(void)
 	
 	gp_free_space = NULL;
 	//for(p_heap = (U32 *)p_end; p_heap < gp_stack; p_heap += HEAP_BLOCK_SIZE) {
-	for(p_heap = (U32 *)p_end; p_heap < (U32*)p_end + 2 * HEAP_BLOCK_SIZE; p_heap += HEAP_BLOCK_SIZE) {
+	for(p_heap = (U32 *)p_end; p_heap < (U32*)p_end + 1 * HEAP_BLOCK_SIZE; p_heap += HEAP_BLOCK_SIZE) {
 		struct free_heap_block* next_block = (struct free_heap_block *)p_heap;
 		next_block->next = gp_free_space;
 		gp_free_space = next_block;

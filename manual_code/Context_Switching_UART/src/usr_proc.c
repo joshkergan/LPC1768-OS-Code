@@ -63,7 +63,7 @@ void set_test_procs() {
 	g_test_procs[0].m_priority   = MEDIUM;
 	
 	g_test_procs[1].mpf_start_pc = &proc2;
-	g_test_procs[1].m_priority   = HIGH;
+	g_test_procs[1].m_priority   = LOW;
 	
 	g_test_procs[2].mpf_start_pc = &proc3;
 	g_test_procs[2].m_priority   = LOW;
@@ -87,6 +87,17 @@ void proc1(void)
 {
 	int i = 0;
 	void *p_mem_blk;
+	
+	uart0_put_string("P1 running\n");
+	p_mem_blk = request_memory_block();
+	uart0_put_string("P1 asked for memory\n");
+	set_process_priority(PID_P2, HIGH);
+	uart0_put_string("P1 Releasing\n");
+	release_memory_block(p_mem_blk);
+	while ( 1 ) {
+		release_processor();
+	}
+	
 	while ( 1 ) {
 		if ( i != 0 && i%5 == 0 ) {
 			uart0_put_string("\n\r");
@@ -110,7 +121,14 @@ void proc2(void)
 	int ret_val = 20;
 	void *p_mem_blk;
 	
+	uart0_put_string("Running P2\n");
 	p_mem_blk = request_memory_block();
+	release_memory_block(p_mem_blk);
+	uart0_put_string("Success!\n");
+	while ( 1 ) {
+		release_processor();
+	}
+	
 	set_process_priority(PID_P2, MEDIUM);
 	while ( 1) {
 		if ( i != 0 && i%5 == 0 ) {

@@ -76,6 +76,7 @@ void memory_init(void)
 #ifdef DEBUG_0  
 	printf("gp_pcbs[0] = 0x%x \n", gp_pcbs[0]);
 	printf("gp_pcbs[1] = 0x%x \n", gp_pcbs[1]);
+	printf("gp_pcbs[2] = 0x%x \n", gp_pcbs[2]);
 #endif
 	
 	/* prepare for alloc_stack() to allocate memory for stacks */

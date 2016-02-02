@@ -37,6 +37,10 @@ U32 g_switch_flag = 0;          /* whether to continue to run the process before
 PROC_INIT g_proc_table[NUM_TEST_PROCS + 1]; /* holds init info for null process and all test processes */
 extern PROC_INIT g_test_procs[NUM_TEST_PROCS];
 
+/**
+ * @brief: add a PCB to the back of the queue
+ */
+ 
 void enqueue(QUEUE *q, PCB *program) {
 	if (!q || !program)
 		return;
@@ -53,6 +57,9 @@ void enqueue(QUEUE *q, PCB *program) {
 	q->last = program;
 }
 
+/**
+ * @brief: remove a PCB from the front of the queue
+ */
 PCB * dequeue(QUEUE *q) {
 	PCB* to_ret;
 	
@@ -72,6 +79,9 @@ PCB * dequeue(QUEUE *q) {
 
 int get_process_priority(int);
 
+/**
+ * @brief: find the highest priority blocked process
+ */
 PCB * find_first_blocked(void) {	
 	int i;
 	PCB* cur_program;
@@ -88,6 +98,10 @@ PCB * find_first_blocked(void) {
 	return NULL;
 }
 
+/**
+ * @brief: remove process from ready queue
+ * pops a PCB from the ready queue and returns a pointer to the PCB
+ */
 PCB * remove_by_PID(int process_id) {
 	int priority;
 	QUEUE *q;
@@ -117,6 +131,9 @@ PCB * remove_by_PID(int process_id) {
 	return NULL;
 }
 
+/**
+ * @brief: block the current process (waiting for memory)
+ */
 void k_add_blocked(void) {
 	if (!gp_current_process)
 		return;
@@ -126,6 +143,11 @@ void k_add_blocked(void) {
 	k_release_processor();
 }
 
+/**
+ * @brief: set the priority of a process
+ * If a process gets a priority higher than the running process,
+ * then the new process is run
+ */
 int k_set_process_priority(int process_id, int priority) {
 	PCB *process;
 	
@@ -142,9 +164,13 @@ int k_set_process_priority(int process_id, int priority) {
 	process->m_priority = priority;
 	
 	enqueue(&gp_pqueue[priority], process);
+	k_release_processor();
 	return 0;
 }
 
+/**
+ * @brief: get the priority of a process
+ */
 int get_process_priority(int process_id) {
 	int i;
 	PCB* cur_program;
@@ -177,6 +203,7 @@ void process_init()
 	set_test_procs();	
 	for ( i = 0; i < NUM_TEST_PROCS; i++ ) {
 		g_proc_table[i + 1].m_pid = g_test_procs[i].m_pid;
+		g_proc_table[i + 1].m_priority = g_test_procs[i].m_priority;
 		g_proc_table[i + 1].m_stack_size = g_test_procs[i].m_stack_size;
 		g_proc_table[i + 1].mpf_start_pc = g_test_procs[i].mpf_start_pc;
 	}
@@ -190,6 +217,7 @@ void process_init()
 	for ( i = 0; i < NUM_TEST_PROCS + 1; i++) {
 		int j;
 		(gp_pcbs[i])->m_pid = (g_proc_table[i]).m_pid;
+		(gp_pcbs[i])->m_priority = (g_proc_table[i]).m_priority;
 		(gp_pcbs[i])->m_state = NEW;
 		
 		sp = alloc_stack((g_proc_table[i]).m_stack_size);
@@ -250,13 +278,19 @@ PCB *scheduler(void)
 		PCB *first_process = dequeue(&gp_pqueue[i]);
 		if (!first_process)
 			continue;
-		if (first_process->m_state != BLOCKED)
-			return first_process;
+		
 		enqueue(&gp_pqueue[i], first_process);
+		
+		if (first_process->m_state != BLOCKED) {
+			return first_process;
+		}
+		
 		process = dequeue(&gp_pqueue[i]);
 		while (process != first_process) {
-			if (process->m_state != BLOCKED)
+			if (process->m_state != BLOCKED) {
+				enqueue(&gp_pqueue[i], process);
 				return process;
+			}
 				
 			enqueue(&gp_pqueue[i], process);
 			process = dequeue(&gp_pqueue[i]);

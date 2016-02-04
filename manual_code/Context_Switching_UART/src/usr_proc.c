@@ -86,28 +86,26 @@ void set_test_procs() {
 void proc1(void)
 {
 	int i = 0;
-	void *p_mem_blk;
+	void *p_mem_blk [30];
 	
 	uart0_put_string("P1 running\n");
-	p_mem_blk = request_memory_block();
-	uart0_put_string("P1 asked for memory\n");
+	while (i < 30) {
+		p_mem_blk[i] = request_memory_block();
+		uart0_put_string("P1 asked for memory\n");
+#ifdef DEBUG_0
+		printf("proc1: p_mem_blk=0x%x\n", p_mem_blk[i]);
+#endif
+		i++;
+	}
 	set_process_priority(PID_P2, HIGH);
-	uart0_put_string("P1 Releasing\n");
-	release_memory_block(p_mem_blk);
-	while ( 1 ) {
-		release_processor();
+	while (i > 0) {
+		i--;
+		uart0_put_string("P1 Releasing\n");
+		release_memory_block(p_mem_blk[i]);
 	}
 	
 	while ( 1 ) {
-		if ( i != 0 && i%5 == 0 ) {
-			uart0_put_string("\n\r");
-			p_mem_blk = request_memory_block();
-#ifdef DEBUG_0
-			printf("proc1: p_mem_blk=0x%x\n", p_mem_blk);
-#endif /* DEBUG_0 */
-		}
-		uart0_put_char('A' + i%26);
-		i++;
+		release_processor();
 	}
 }
 

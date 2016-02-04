@@ -11,7 +11,7 @@
 #include "printf.h"
 #endif /* ! DEBUG_0 */
 
-#define HEAP_BLOCK_SIZE 128 * sizeof(U8) // 128 bytes
+#define HEAP_BLOCK_SIZE 128 / sizeof(U32) // 128 bytes
 
 /* ----- Global Variables ----- */
 U32 *gp_stack; /* The last allocated stack low address. 8 bytes aligned */
@@ -89,8 +89,7 @@ void memory_init(void)
 	/* allocate memory for heap*/
 	
 	gp_free_space = NULL;
-	//for(p_heap = (U32 *)p_end; p_heap < gp_stack; p_heap += HEAP_BLOCK_SIZE) {
-	for(p_heap = (U32 *)p_end; p_heap < (U32*)p_end + 1 * HEAP_BLOCK_SIZE; p_heap += HEAP_BLOCK_SIZE) {
+	for(p_heap = (U32 *)p_end; p_heap < gp_stack && p_heap < (U32*)p_end + 30 * HEAP_BLOCK_SIZE; p_heap += HEAP_BLOCK_SIZE) {
 		struct free_heap_block* next_block = (struct free_heap_block *)p_heap;
 		next_block->next = gp_free_space;
 		gp_free_space = next_block;
@@ -121,7 +120,7 @@ U32 *alloc_stack(U32 size_b)
 }
 
 void *k_request_memory_block(void) {
-	void* mem_alloced = (void *)gp_free_space;
+	void* mem_alloced;
 #ifdef DEBUG_0 
 	printf("k_request_memory_block: entering...\n");
 #endif /* ! DEBUG_0 */
@@ -132,6 +131,7 @@ void *k_request_memory_block(void) {
 	}
 	// TODO : Add current process to the blocked queue, switch to next process
 
+	mem_alloced = (void *)gp_free_space;
 	// If there is a free heap block, approve the request (pop it off the stack of free_heap_block_s)
 	gp_free_space = gp_free_space->next;
 	

@@ -126,10 +126,13 @@ void *k_request_memory_block(void) {
 #endif /* ! DEBUG_0 */
 	
 	// No free heap memory -> block thread
-	while (gp_free_space == NULL) {
+	if (gp_free_space == NULL) {
+		//add_blocked();
 		k_add_blocked(); // suspends the process, resumes after here
+#ifdef DEBUG_0
+		printf("Resuming blocked process\n");
+#endif
 	}
-	// TODO : Add current process to the blocked queue, switch to next process
 
 	mem_alloced = (void *)gp_free_space;
 	// If there is a free heap block, approve the request (pop it off the stack of free_heap_block_s)

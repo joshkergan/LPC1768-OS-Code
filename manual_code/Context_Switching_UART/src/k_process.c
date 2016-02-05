@@ -140,7 +140,9 @@ PCB * remove_by_PID(int process_id) {
 void k_add_blocked(void) {
 	if (!gp_current_process)
 		return;
-	
+#ifdef DEBUG_0 
+	printf("Blocking process: %d\n", gp_current_process->m_pid);
+#endif /* ! DEBUG_0 */
 	gp_current_process->m_state = BLOCKED;
 	g_num_blocked++;
 	k_release_processor();
@@ -354,7 +356,7 @@ int process_switch(PCB *p_pcb_old)
 	/* The following will only execute if the if block above is FALSE */
 
 	if (gp_current_process != p_pcb_old) {
-		if (state == RDY){ 		
+		if (state == RDY ) {//|| state == BLOCKED){ 		
 			if (p_pcb_old->m_state == RUN)
 				p_pcb_old->m_state = RDY; 
 			p_pcb_old->mp_sp = (U32 *) __get_MSP(); // save the old process's sp
@@ -383,8 +385,7 @@ int k_release_processor(void)
 		gp_current_process = p_pcb_old; // revert back to the old process
 		return RTX_ERR;
 	}
-	
-        if ( p_pcb_old == NULL ) {
+	if ( p_pcb_old == NULL ) {
 		p_pcb_old = gp_current_process;
 	} else {
 		add_to_priority_queue(p_pcb_old);

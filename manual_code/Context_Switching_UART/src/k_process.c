@@ -25,7 +25,7 @@
 /* ----- Global Variables ----- */
 PCB **gp_pcbs;                  /* array of pcbs */
 PCB *gp_current_process = NULL; /* always point to the current RUN process */
-QUEUE *gp_pqueue;								/* array of queues */
+
 U32 g_num_blocked = 0;					/* the number of blocked processes */
 U32 g_released_memory = 0;
 
@@ -36,103 +36,6 @@ U32 g_switch_flag = 0;          /* whether to continue to run the process before
 /* process initialization table */
 PROC_INIT g_proc_table[NUM_TEST_PROCS + 1]; /* holds init info for null process and all test processes */
 extern PROC_INIT g_test_procs[NUM_TEST_PROCS];
-
-/**
- * @brief: add a PCB to the back of the queue
- */
- 
-void enqueue(QUEUE *q, PCB *program) {
-	if (!q || !program)
-		return;
-	
-	if (program->m_pid == 0)
-		uart0_put_string("Success!");
-	
-	program->mp_next = NULL;
-	
-	if (!q->first || !q->last) {
-		q->first = program;
-		q->last = program;
-		return;
-	}
-	
-	q->last->mp_next = program;
-	q->last = program;
-}
-
-/**
- * @brief: remove a PCB from the front of the queue
- */
-PCB * dequeue(QUEUE *q) {
-	PCB* to_ret;
-	
-	if (!q)
-		return NULL;
-	
-	if (!q->first || !q->last)
-		return NULL;
-	
-	to_ret = q->first;
-	q->first = to_ret->mp_next;
-	if (!q->first)
-		q->last = NULL;
-	
-	return to_ret;
-}
-
-int get_process_priority(int);
-
-/**
- * @brief: find the highest priority blocked process
- */
-PCB * find_first_blocked(void) {	
-	int i;
-	PCB* cur_program;
-	
-	for (i = 0; i < NUM_PRIORITIES; i++) {
-		cur_program = gp_pqueue[i].first;
-		while (cur_program) {
-			if (cur_program->m_state == BLOCKED)
-				return cur_program;
-			cur_program = cur_program->mp_next;
-		}
-	}
-	
-	return NULL;
-}
-
-/**
- * @brief: remove process from ready queue
- * pops a PCB from the ready queue and returns a pointer to the PCB
- */
-PCB * remove_by_PID(int process_id) {
-	int priority;
-	QUEUE *q;
-	PCB *prev;
-	PCB *cur;
-	
-	priority = get_process_priority(process_id);
-	if (priority == -1)
-		return NULL;
-	
-	q = &gp_pqueue[priority];
-	if (q->first->m_pid == process_id)
-		return dequeue(q);
-	
-	prev = q->first;
-	cur = prev->mp_next;
-	while (cur) {
-		if (cur->m_pid == process_id) {
-			prev->mp_next = cur->mp_next;
-			if (q->last == cur)
-				q->last = prev;
-			
-			return cur;
-		}
-	}
-	
-	return NULL;
-}
 
 /**
  * @brief: block the current process (waiting for memory)
@@ -157,10 +60,10 @@ int k_set_process_priority(int process_id, int priority) {
 	PCB *process;
 	
 	if (process_id == 0)
-		return -1;
+		return RTX_ERR;
 	
 	if (priority < 0 || priority > 3)
-		return -1;
+		return RTX_ERR;
 	
 	if (process_id == gp_current_process->m_pid) {
 		// Modifying the priority of the running process
@@ -173,16 +76,17 @@ int k_set_process_priority(int process_id, int priority) {
 	
 	process = remove_by_PID(process_id);
 	if (!process)
-		return -1;
+		return RTX_ERR;
 	
 	process->m_priority = priority;
-	enqueue(&gp_pqueue[priority], process);
-	// process is set to a higher priority than running process
-	if (priority < gp_current_process->m_priority) {
+	add_to_priority_queue(process);
+
+	if (priority <= gp_current_process->m_priority) {
+		// process is set to a higher priority than running process
 		k_release_processor();
 	}
 	
-	return 0;
+	return RTX_OK;
 }
 
 /**
@@ -192,16 +96,10 @@ int get_process_priority(int process_id) {
 	int i;
 	PCB* cur_program;
 	
-	if (process_id == gp_current_process->m_pid)
-		return gp_current_process->m_priority;
-	
-	for (i = 0; i < NUM_PRIORITIES; i++) {
-		cur_program = gp_pqueue[i].first;
-		while (cur_program) {
-			if (cur_program->m_pid == process_id)
-				return i;
-			cur_program = cur_program->mp_next;
-		}
+	for (i = 0; i < NUM_PROCS; i++) {
+		cur_program = gp_pcbs[i];
+		if (process_id == cur_program->m_pid)
+			return cur_program->m_priority;
 	}
 	
 	return -1;
@@ -230,6 +128,7 @@ void process_init()
 	
 	// Set initilization values for the null process
 	g_proc_table[0].m_pid = 0;
+	g_proc_table[0].m_priority = 4;
 	g_proc_table[0].m_stack_size = 0x100;
 	g_proc_table[0].mpf_start_pc = &k_null_process;
 	
@@ -255,22 +154,13 @@ void process_init()
 		if (priority < 0 || priority > 3)
 			priority = 3;
 		
-		enqueue(&gp_pqueue[priority], gp_pcbs[i + 1]);
+		add_to_priority_queue(gp_pcbs[i + 1]);
 	}
 	
 	printf("debug\n");
 }
 
-void add_to_priority_queue(PCB *process) {
-	if (!process)
-		return;
-	
-	if (process->m_pid == 0)
-		return;
-	
-	//process->m_state = RDY;
-	enqueue(&gp_pqueue[process->m_priority], process);
-}
+
 
 /*@brief: scheduler, pick the pid of the next to run process
  *@return: PCB pointer of the next to run process
@@ -280,7 +170,6 @@ void add_to_priority_queue(PCB *process) {
  */
 PCB *scheduler(void)
 {
-	int i;
 	PCB *process;
 	
 	// Default to Null process if this is the first time running
@@ -296,37 +185,28 @@ PCB *scheduler(void)
 			process->m_state = RDY;
 			g_num_blocked--;
 			process = remove_by_PID(process->m_pid);
-			//enqueue(&gp_pqueue[process->m_priority], process);
 			g_released_memory = 0;
 			return process;
 		}
 		
 		g_released_memory = 0;
 	}
-	// Find the first process with the highest priority (that isn't blocked)
-	for (i = 0; i < NUM_PRIORITIES; i++) {
-		PCB *first_process = dequeue(&gp_pqueue[i]);
-		if (!first_process)
-			continue;
-		
-		if (first_process->m_state != BLOCKED)
-			return first_process;
-		else
-			enqueue(&gp_pqueue[i], first_process);
-		
-		process = dequeue(&gp_pqueue[i]);
-		while (process != first_process) {
-			if (process->m_state != BLOCKED) {
-				return process;
-			}
-				
-			enqueue(&gp_pqueue[i], process);
-			process = dequeue(&gp_pqueue[i]);
-		}
+	
+	process = find_first_ready();
+	if (!process) {
+		// No ready process, run the null process
+		return gp_pcbs[0];
 	}
 	
-	// All processes busy, run the null process
-	return gp_pcbs[0];
+	if (gp_current_process->m_state == BLOCKED ||
+		  process->m_priority <= gp_current_process->m_priority) {
+		process = remove_by_PID(process->m_pid);
+		return process;
+	}
+	
+	// Currently running process has the highest priority
+	// continue to run it
+	return gp_current_process;
 }
 
 /*@brief: switch out old pcb (p_pcb_old), run the new pcb (gp_current_process)
@@ -356,7 +236,7 @@ int process_switch(PCB *p_pcb_old)
 	/* The following will only execute if the if block above is FALSE */
 
 	if (gp_current_process != p_pcb_old) {
-		if (state == RDY ) {//|| state == BLOCKED){ 		
+		if (state == RDY ) {		
 			if (p_pcb_old->m_state == RUN)
 				p_pcb_old->m_state = RDY; 
 			p_pcb_old->mp_sp = (U32 *) __get_MSP(); // save the old process's sp
@@ -385,6 +265,12 @@ int k_release_processor(void)
 		gp_current_process = p_pcb_old; // revert back to the old process
 		return RTX_ERR;
 	}
+	
+	if (gp_current_process == p_pcb_old) {
+		// Continue to run the current process
+		return RTX_OK;
+	}
+	
 	if ( p_pcb_old == NULL ) {
 		p_pcb_old = gp_current_process;
 	} else {

@@ -60,13 +60,16 @@ void set_test_procs() {
 	}
   
 	g_test_procs[0].mpf_start_pc = &proc1;
-	g_test_procs[0].m_priority   = MEDIUM;
+	//g_test_procs[0].m_priority   = MEDIUM;
+	g_test_procs[0].m_priority	 = LOW;
 	
 	g_test_procs[1].mpf_start_pc = &proc2;
+	//g_test_procs[1].m_priority   = HIGH;
 	g_test_procs[1].m_priority   = LOW;
 	
 	g_test_procs[2].mpf_start_pc = &proc3;
-	g_test_procs[2].m_priority   = LOW;
+	//g_test_procs[2].m_priority   = LOW;
+	g_test_procs[2].m_priority   = MEDIUM;
 	
 	g_test_procs[3].mpf_start_pc = &proc4;
 	g_test_procs[3].m_priority   = LOW;
@@ -86,26 +89,17 @@ void set_test_procs() {
 void proc1(void)
 {
 	int i = 0;
-	void *p_mem_blk [30];
-	
-	uart0_put_string("P1 running\n");
-	while (i < 30) {
-		p_mem_blk[i] = request_memory_block();
-		uart0_put_string("P1 asked for memory\n");
-#ifdef DEBUG_0
-		printf("proc1: p_mem_blk=0x%x\n", p_mem_blk[i]);
-#endif
-		i++;
-	}
-	set_process_priority(PID_P2, HIGH);
-	while (i > 0) {
-		i--;
-		uart0_put_string("P1 Releasing\n");
-		release_memory_block(p_mem_blk[i]);
-	}
-	
+	void *p_mem_blk;
 	while ( 1 ) {
-		release_processor();
+		if ( i != 0 && i%5 == 0 ) {
+			uart0_put_string("\n\r");
+			p_mem_blk = request_memory_block();
+#ifdef DEBUG_0
+			printf("proc1: p_mem_blk=0x%x\n", p_mem_blk);
+#endif /* DEBUG_0 */
+		}
+		uart0_put_char('A' + i%26);
+		i++;
 	}
 }
 
@@ -119,14 +113,7 @@ void proc2(void)
 	int ret_val = 20;
 	void *p_mem_blk;
 	
-	uart0_put_string("Running P2\n");
 	p_mem_blk = request_memory_block();
-	release_memory_block(p_mem_blk);
-	uart0_put_string("Success!\n");
-	while ( 1 ) {
-		release_processor();
-	}
-	
 	set_process_priority(PID_P2, MEDIUM);
 	while ( 1) {
 		if ( i != 0 && i%5 == 0 ) {
@@ -152,27 +139,37 @@ void proc2(void)
 void proc3(void)
 {
 	int i=0;
+	void *p_mem_blks[30];
 	
-	while(1) {
-		if ( i < 2 ) {
-			uart0_put_string("proc3: \n\r");
-		}
-		release_processor();
-		i++;
+	for (i = 0; i < 30; i++) {
+		uart0_put_string("proc3 requesting block\n");
+		p_mem_blks[i] = request_memory_block();
 	}
+	set_process_priority(4, HIGH);
+	for (i = 0; i < 30; i++) {
+		uart0_put_string("proc3 releasing block\n");
+		release_memory_block(p_mem_blks[i]);
+	}
+	
+	while(1)
+		release_processor();
 }
 
 void proc4(void)
 {
-	int i=0;
+	void *p_mem_blk;
 	
-	while(1) {
-		if ( i < 2 ) {
-			uart0_put_string("proc4: \n\r");
-		}
+	uart0_put_string("proc4 running\n");
+	uart0_put_string("proc4 asking for memory block\n");
+	p_mem_blk = request_memory_block();
+	uart0_put_string("proc4 got memory block\n");
+	uart0_put_string("proc4 releasing memory block\n");
+	release_memory_block(p_mem_blk);
+	
+	uart0_put_string("proc4 finished\n");
+	
+	while(1)
 		release_processor();
-		i++;
-	}
 }
 void proc5(void)
 {

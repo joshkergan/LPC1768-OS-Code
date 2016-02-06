@@ -62,14 +62,14 @@ void memory_init(void)
 
 	/* allocate memory for pcb pointers   */
 	gp_pcbs = (PCB **)p_end;
-	p_end += (NUM_TEST_PROCS + 1) * sizeof(PCB *);
+	p_end += NUM_PROCS * sizeof(PCB *);
   
 	/* allocate memory for priority array */
 	gp_pqueue = (QUEUE *)p_end;
 	p_end += NUM_PRIORITIES * sizeof(QUEUE);
 	
 	/* allocate memory for PCBs */
-	for ( i = 0; i < NUM_TEST_PROCS + 1; i++ ) {
+	for ( i = 0; i < NUM_PROCS; i++ ) {
 		gp_pcbs[i] = (PCB *)p_end;
 		p_end += sizeof(PCB); 
 	}
@@ -127,7 +127,6 @@ void *k_request_memory_block(void) {
 	
 	// No free heap memory -> block thread
 	if (gp_free_space == NULL) {
-		//add_blocked();
 		k_add_blocked(); // suspends the process, resumes after here
 #ifdef DEBUG_0
 		printf("Resuming blocked process\n");

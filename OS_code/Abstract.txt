@@ -1,0 +1,14 @@
+Expects between 1 and 6 processes to be running.
+
+You will need to open two UART terminals.
+The COM0 terminal is interrupt driven and accepts user input. 
+When user types 'S' single char in the terminal, the system switches from the current running process to the other ready process.
+When 'S' is pressed while the kernel code is running may result in the process getting stuck.
+
+The COM1 terminal uses polling mechanism and output the debugging messages.
+The user proc1 and proc2 outputs for now to the debugging terminal for now.
+
+Expected behavior:
+
+The OS allocates the memory for the processes defined in usr_proc they allow the memory to be requested from the heap in 128B blocks of type void*.
+There are 30 128B blocks available that the OS manages. Which blocks are assigned to what process is not controlled.

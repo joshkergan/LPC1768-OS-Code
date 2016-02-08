@@ -25,14 +25,6 @@
 #define USR_SZ_STACK 0x100         /* user proc stack size 218B  */
 #endif /* DEBUG_0 */
 
-/*** THIS IS HACK TO CALL RELEASE PROCESSOR FROM THE KERNEL ***/
-typedef unsigned int U32;
-#define __SVC_0  __svc_indirect(0)
-
-int k_release_processor(void);
-#define release_processor() _release_processor((U32)k_release_processor)
-extern int __SVC_0 _release_processor(U32 p_func);
-/*** DONE HACKING ***/
 
 /*----- Types -----*/
 typedef unsigned char U8;
@@ -53,6 +45,7 @@ typedef struct pcb
 	U32 m_pid;		/* process id */
 	U32 m_priority;	/* process priority */
 	PROC_STATE_E m_state;   /* state of the process */      
+	void *mp_assigned_mem;   /* memory returned from begin blocked */
 } PCB;
 
 /* initialization table item */

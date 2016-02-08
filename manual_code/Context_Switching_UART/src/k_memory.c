@@ -16,7 +16,9 @@
 /* ----- Global Variables ----- */
 U32 *gp_stack; /* The last allocated stack low address. 8 bytes aligned */
                /* The first stack starts at the RAM high address */
-	       /* stack grows down. Fully decremental stack */
+							 /* stack grows down. Fully decremental stack */
+
+// Struct that points to free memory blocks
 struct free_heap_block {
 	struct free_heap_block* next;
 };
@@ -119,6 +121,11 @@ U32 *alloc_stack(U32 size_b)
 	return sp;
 }
 
+/**
+ * @brief: allocate a heap block to a process
+ * @return: A pointer to the memory block in the heap
+ * POST:  gp_free_space is updated.
+ */
 void *k_request_memory_block(void) {
 	void* mem_alloced;
 #ifdef DEBUG_0 
@@ -127,20 +134,38 @@ void *k_request_memory_block(void) {
 	
 	// No free heap memory -> block thread
 	if (gp_free_space == NULL) {
-		k_add_blocked(); // suspends the process, resumes after here
-#ifdef DEBUG_0
-		printf("Resuming blocked process\n");
-#endif
+#ifdef DEBUG_0 
+		printf("Blocking process: %d\n", gp_current_process->m_pid);
+#endif /* ! DEBUG_0 */
+		// suspends the process
+		gp_current_process->m_state = BLOCKED;
+		g_num_blocked++;
+		k_release_processor();
+		mem_alloced = gp_current_process->mp_assigned_mem;
+	} else {
+		mem_alloced = (void *)gp_free_space;
+		// If there is a free heap block, approve the request (pop it off the stack of free_heap_block_s)
+		gp_free_space = gp_free_space->next;
 	}
-
-	mem_alloced = (void *)gp_free_space;
-	// If there is a free heap block, approve the request (pop it off the stack of free_heap_block_s)
-	gp_free_space = gp_free_space->next;
+	
+#ifdef DEBUG_0
+	printf("Assigning memory block: 0x%x", mem_alloced);
+#endif
 	
 	return mem_alloced;
 }
 
+/**
+ * @brief: return a block of memory to the heap
+ * @param: a valid pointer to memory in the heap
+ * POST:  gp_free_space is updated. The memory block may
+ * 				have been assigned to a blocked process.
+ * 
+ *     		A blocked process can preemept the current process 
+ *      	if it has a higher prioity
+ */
 int k_release_memory_block(void *p_mem_blk) {
+	struct free_heap_block* next_block = (struct free_heap_block *)p_mem_blk;
 #ifdef DEBUG_0 
 	printf("k_release_memory_block: releasing block @ 0x%x\n", p_mem_blk);
 #endif /* ! DEBUG_0 */
@@ -148,11 +173,8 @@ int k_release_memory_block(void *p_mem_blk) {
 	// !!! Assuming p_mem_blk is allocated, and can be freed by current process
 
 	// Push p_mem_blk onto stack of free_heap_block_s
-	{
-		struct free_heap_block* next_block = (struct free_heap_block *)p_mem_blk;
-		next_block->next = gp_free_space;
-		gp_free_space = next_block;
-	}
+	next_block->next = gp_free_space;
+	gp_free_space = next_block;
 	
 	if (g_num_blocked > 0) {
 		g_released_memory = 1;

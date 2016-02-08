@@ -21,12 +21,13 @@ extern QUEUE *gp_pqueue;
 extern PROC_INIT g_proc_table[NUM_TEST_PROCS];
 extern U32 g_num_blocked;
 extern U32 g_released_memory;
+extern PCB *gp_current_process;
+extern int k_release_processor(void);
 
 /* ----- Functions ------ */
 void memory_init(void);
 U32 *alloc_stack(U32 size_b);
 void *k_request_memory_block(void);
 int k_release_memory_block(void *);
-void k_add_blocked(void);
 
 #endif /* ! K_MEM_H_ */

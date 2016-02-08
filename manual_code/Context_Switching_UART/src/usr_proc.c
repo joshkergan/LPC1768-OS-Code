@@ -146,6 +146,7 @@ void proc3(void)
 		p_mem_blks[i] = request_memory_block();
 	}
 	set_process_priority(4, HIGH);
+	set_process_priority(3, MEDIUM);
 	for (i = 0; i < 30; i++) {
 		uart0_put_string("proc3 releasing block\n");
 		release_memory_block(p_mem_blks[i]);

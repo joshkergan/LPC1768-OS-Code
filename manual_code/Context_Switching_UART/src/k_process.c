@@ -173,7 +173,10 @@ PCB *scheduler(void)
 			process->mp_assigned_mem = (void*)gp_free_space;
 			gp_free_space = gp_free_space->next;
 			g_released_memory = 0;
-			return gp_current_process;
+			if(process->m_priority < gp_current_process->m_priority)
+				return process;
+			else
+				return gp_current_process;
 		}
 		g_released_memory = 0;
 	}

@@ -113,7 +113,7 @@ void process_init()
 	// Set initilization values for the null process
 	g_proc_table[0].m_pid = 0;
 	g_proc_table[0].m_priority = 4;
-	g_proc_table[0].m_stack_size = USR_SZ_STACK;
+	g_proc_table[0].m_stack_size = 0x100;
 	g_proc_table[0].mpf_start_pc = &k_null_process;
 	
 	/* initilize exception stack frame (i.e. initial context) for each process */

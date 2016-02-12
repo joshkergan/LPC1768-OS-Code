@@ -20,7 +20,7 @@
 #define NUM_PRIORITIES 	4
 
 #ifdef DEBUG_0
-#define USR_SZ_STACK 0x200         /* user proc stack size 512B   */
+#define USR_SZ_STACK 0x300         /* user proc stack size 1728B   */
 #else
 #define USR_SZ_STACK 0x100         /* user proc stack size 218B  */
 #endif /* DEBUG_0 */

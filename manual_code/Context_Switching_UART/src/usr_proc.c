@@ -52,6 +52,9 @@
 /* initialization table item */
 PROC_INIT g_test_procs[NUM_TEST_PROCS];
 
+int passCount = 0;
+int testCount = 0;
+
 void set_test_procs() {
 	int i;
 	for( i = 0; i < NUM_TEST_PROCS; i++ ) {
@@ -140,10 +143,21 @@ void proc3(void)
 {
 	int i=0;
 	void *p_mem_blks[30];
+	int p = get_process_priority(PID_P3);
+	
+	uart0_put_string("G16_test: START");
 	
 	for (i = 0; i < 30; i++) {
 		uart0_put_string("proc3 requesting block\n");
 		p_mem_blks[i] = request_memory_block();
+		if(NULL != p_mem_blks[i] && i == 1) {
+			uart0_put_string("G16_test: 1 OK");
+			testCount++;
+			passCount++;
+		} else {
+			uart0_put_string("G16_test: 1 FAIL");
+			testCount++;
+		}
 	}
 	set_process_priority(4, HIGH);
 	set_process_priority(3, MEDIUM);

@@ -1,4 +1,10 @@
+#ifndef K_PRIORITY_QUEUE_H
+#define K_PRIORITY_QUEUE_H
+
 #include "k_rtx.h"
+#ifdef DEBUG_0
+#include "printf.h"
+#endif /* DEBUG_0 */
 
 QUEUE *gp_pqueue;	/* array of queues */
 
@@ -121,3 +127,45 @@ PCB * find_first_ready(void) {
 	
 	return NULL;
 }
+
+#ifdef _DEBUG_HOTKEYS
+void print_ready(void) {
+	int i;
+	printf("Ready processes:\n");
+	for (i = 0; i < NUM_PRIORITIES; i++) {
+		PCB *cur_proc = gp_pqueue[i].first;
+		printf("priority %d: ", i);
+		while (cur_proc) {
+			if (cur_proc->m_state == RDY || cur_proc->m_state == NEW) {
+				printf("%d,", cur_proc->m_pid);
+			}
+			
+			cur_proc = cur_proc->mp_next;
+		}
+		printf("\n");
+	}
+}
+
+void print_mem_blocked(void) {
+	int i;
+	printf("Memory blocked processes:\n");
+	for (i = 0; i < NUM_PRIORITIES; i++) {
+		PCB *cur_proc = gp_pqueue[i].first;
+		printf("priority %d: ", i);
+		while (cur_proc) {
+			if (cur_proc->m_state == BLOCKED) {
+				printf("%d,", cur_proc->m_pid);
+			}
+			
+			cur_proc = cur_proc->mp_next;
+		}
+		printf("\n");
+	}
+}
+
+void print_receive_blocked(void) {
+	
+}
+#endif /* _DEBUG_HOTKEYS */
+
+#endif /* K_PRIORITY_QUEUE_H */

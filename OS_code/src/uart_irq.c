@@ -8,6 +8,7 @@
 #include <LPC17xx.h>
 #include "uart.h"
 #include "uart_polling.h"
+#include "common.h"
 #ifdef DEBUG_0
 #include "printf.h"
 #endif
@@ -203,10 +204,21 @@ void c_UART0_IRQHandler(void)
 		g_send_char = 1;
 		
 		/* setting the g_switch_flag */
-		if ( g_char_in == 'S' ) {
-			g_switch_flag = 1; 
-		} else {
-			g_switch_flag = 0;
+		switch (g_char_in) {
+			case 'S':
+				g_switch_flag = 1;
+				break;
+#ifdef _DEBUG_HOTKEYS
+			case READY_Q_COMMAND:
+				print_ready();
+				break;
+			case MEMORY_Q_COMMAND:
+				print_mem_blocked();
+				break;
+			case RECEIVE_Q_COMMAND:
+				print_receive_blocked();
+				break;
+#endif
 		}
 	} else if (IIR_IntId & IIR_THRE) {
 	/* THRE Interrupt, transmit holding register becomes empty */

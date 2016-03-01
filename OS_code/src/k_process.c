@@ -45,11 +45,17 @@ extern PROC_INIT g_test_procs[NUM_TEST_PROCS];
 int k_set_process_priority(int process_id, int priority) {
 	PCB *process;
 	
-	if (process_id == 0)
-		return RTX_ERR;
+	__disable_irq();
 	
-	if (priority < 0 || priority > 3)
+	if (process_id == 0) {
+		__enable_irq();
 		return RTX_ERR;
+	}
+	
+	if (priority < 0 || priority > 3) {
+		__enable_irq();
+		return RTX_ERR;
+	}
 	
 	if (process_id == gp_current_process->m_pid) {
 		// Modifying the priority of the running process
@@ -57,12 +63,15 @@ int k_set_process_priority(int process_id, int priority) {
 		if (priority >= gp_current_process->m_priority)
 			k_release_processor();
 		
+		__enable_irq();
 		return 0;
 	}
 	
 	process = remove_by_PID(process_id);
-	if (!process)
+	if (!process) {
+		__enable_irq();
 		return RTX_ERR;
+	}
 	
 	process->m_priority = priority;
 	add_to_priority_queue(process);
@@ -72,6 +81,7 @@ int k_set_process_priority(int process_id, int priority) {
 		k_release_processor();
 	}
 	
+	__enable_irq();
 	return RTX_OK;
 }
 
@@ -82,13 +92,18 @@ int k_get_process_priority(int process_id) {
 	int i;
 	PCB* cur_program;
 	
+	__disable_irq();
+	
 	for (i = 0; i < NUM_PROCS; i++) {
 		cur_program = gp_pcbs[i];
-		if (process_id == cur_program->m_pid)
+		if (process_id == cur_program->m_pid) {
+			__enable_irq();
 			return cur_program->m_priority;
+		}
 	}
 	
-	return -1;
+	__enable_irq();
+	return RTX_ERR;
 }
 
 /**
@@ -219,6 +234,8 @@ int process_switch(PCB *p_pcb_old)
 			p_pcb_old->mp_sp = (U32 *) __get_MSP();
 		}
 		gp_current_process->m_state = RUN;
+		// We don't continue back up this stack, re-enable interrupts now
+		__enable_irq();
 		__set_MSP((U32) gp_current_process->mp_sp);
 		__rte();  // pop exception stack frame from the stack for a new processes
 	} 
@@ -247,6 +264,9 @@ int process_switch(PCB *p_pcb_old)
 int k_release_processor(void)
 {
 	PCB *p_pcb_old = NULL;
+
+	__disable_irq();
+	
 #ifdef DEBUG_0
 	printf("PCB1: %x PCB2: %x PCB3: %x PCB4: %x \n", gp_pcbs[1]->mp_sp, gp_pcbs[2]->mp_sp, gp_pcbs[3]->mp_sp, gp_pcbs[4]->mp_sp);
 #endif
@@ -256,11 +276,13 @@ int k_release_processor(void)
 	
 	if ( gp_current_process == NULL  ) {
 		gp_current_process = p_pcb_old; // revert back to the old process
+		__enable_irq();
 		return RTX_ERR;
 	}
 	
 	if (gp_current_process == p_pcb_old) {
 		// Continue to run the current process
+		__enable_irq();
 		return RTX_OK;
 	}
 	
@@ -274,5 +296,7 @@ int k_release_processor(void)
 	
 	// Context switch the processes
 	process_switch(p_pcb_old);
+	
+	__enable_irq();
 	return RTX_OK;
 }

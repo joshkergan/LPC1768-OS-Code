@@ -1,6 +1,9 @@
 #include "k_rtx.h"
 #include "kcd.h"
 
+//TODO: delete
+#include "printf.h"
+
 KCD *g_kcd_list = NULL;
 
 int strcmp(char *s1, char *s2) {
@@ -48,12 +51,12 @@ int get_kcd_handler(char *str) {
 	return -1;
 }
 
-void kcd_proc(void) {
+void kcd_process(void) {
 	MSG_BUF *message;
 	while (1) {
 		// Block until next message
 		//message = receive_message(null);
 		//TODO: Check to make sure message has correct form
-		add_kcd_command(message->mtext, message->m_send_pid);
+		//add_kcd_command(message->mtext, message->m_send_pid);
 	}
 }

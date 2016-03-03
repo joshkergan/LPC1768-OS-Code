@@ -118,6 +118,6 @@ void c_TIMER0_IRQHandler(void)
 	LPC_TIM0->IR = BIT(0);  
 	
 	g_timer_count++ ;
-	printf("timer! %d\n", g_timer_count);
+	//printf("timer! %d\n", g_timer_count);
 }
 

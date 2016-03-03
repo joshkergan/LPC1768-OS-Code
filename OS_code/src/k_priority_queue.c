@@ -7,6 +7,7 @@
 #endif /* DEBUG_0 */
 
 QUEUE *gp_pqueue;	/* array of queues */
+QUEUE g_sys_pqueue;	/* queue for system processes */
 
 /**
  * @brief: add a PCB to the back of the queue
@@ -58,6 +59,28 @@ PCB * remove_by_PID(int process_id) {
 	PCB *prev;
 	PCB *cur;
 	
+	// First check system queue
+	q = &g_sys_pqueue;
+	if (q->first->m_pid == process_id)
+		return dequeue(q);
+	
+	prev = q->first;
+	cur = prev->mp_next;
+	while (cur) {
+		if (cur->m_pid == process_id) {
+			// Found the process, remove it from the queue
+			prev->mp_next = cur->mp_next;
+			if (q->last == cur)
+				q->last = prev;
+			
+			return cur;
+		}
+		
+		prev = cur;
+		cur = cur->mp_next;
+	}
+	
+	// Check user queues
 	for (priority = 0; priority < NUM_PRIORITIES; priority++) {
 		q = &gp_pqueue[priority];
 		if (q->first->m_pid == process_id)
@@ -91,8 +114,15 @@ void add_to_priority_queue(PCB *process) {
 	// Never add the null process
 	if (process->m_pid == 0)
 		return;
-
-	enqueue(&gp_pqueue[process->m_priority], process);
+	
+	switch (process->m_pid) {
+		case PID_CRT:
+		case PID_KCD:
+			enqueue(&g_sys_pqueue, process);
+			break;
+		default:
+			enqueue(&gp_pqueue[process->m_priority], process);
+	}
 }
 
 /**
@@ -102,6 +132,15 @@ PCB *find_first_blocked(void) {
 	int i;
 	PCB* cur_proc;
 	
+	// First check system queue
+	cur_proc = g_sys_pqueue.first;
+	while (cur_proc) {
+		if (cur_proc->m_state == BLOCKED)
+			return cur_proc;
+		cur_proc = cur_proc->mp_next;
+	}
+	
+	// Check user processes
 	for (i = 0; i < NUM_PRIORITIES; i++) {
 		cur_proc = gp_pqueue[i].first;
 		while (cur_proc) {
@@ -116,6 +155,16 @@ PCB *find_first_blocked(void) {
 
 PCB * find_first_ready(void) {
 	int i;
+	
+	// First check system queue
+	PCB *cur_proc = g_sys_pqueue.first;
+	while (cur_proc) {
+		if (cur_proc->m_state == RDY || cur_proc->m_state == NEW)
+			return cur_proc;
+		cur_proc = cur_proc->mp_next;
+	}
+	
+	// Check user queues
 	for (i = 0; i < NUM_PRIORITIES; i++) {
 		PCB *cur_proc = gp_pqueue[i].first;
 		while (cur_proc) {

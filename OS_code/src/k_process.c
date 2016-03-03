@@ -34,7 +34,7 @@ U32 g_switch_flag = 0;          /* whether to continue to run the process before
 				/* this value will be set by UART handler */
 
 /* process initialization table */
-PROC_INIT g_proc_table[NUM_TEST_PROCS + 1]; /* holds init info for null process and all test processes */
+PROC_INIT g_proc_table[NUM_PROCS]; /* holds init info for system processes and all test processes */
 extern PROC_INIT g_test_procs[NUM_TEST_PROCS];
 
 /**
@@ -119,20 +119,30 @@ void process_init()
         /* fill out the initialization table */
 	set_test_procs();	
 	for ( i = 0; i < NUM_TEST_PROCS; i++ ) {
-		g_proc_table[i + 1].m_pid = g_test_procs[i].m_pid;
-		g_proc_table[i + 1].m_priority = g_test_procs[i].m_priority;
-		g_proc_table[i + 1].m_stack_size = g_test_procs[i].m_stack_size;
-		g_proc_table[i + 1].mpf_start_pc = g_test_procs[i].mpf_start_pc;
+		g_proc_table[i + NUM_SYSTEM_PROCS].m_pid = g_test_procs[i].m_pid;
+		g_proc_table[i + NUM_SYSTEM_PROCS].m_priority = g_test_procs[i].m_priority;
+		g_proc_table[i + NUM_SYSTEM_PROCS].m_stack_size = g_test_procs[i].m_stack_size;
+		g_proc_table[i + NUM_SYSTEM_PROCS].mpf_start_pc = g_test_procs[i].mpf_start_pc;
 	}
 	
-	// Set initilization values for the null process
-	g_proc_table[0].m_pid = 0;
+	// Set initilization values for the system processes
+	g_proc_table[0].m_pid = PID_NULL;
 	g_proc_table[0].m_priority = 4;
 	g_proc_table[0].m_stack_size = 0x100;
 	g_proc_table[0].mpf_start_pc = &k_null_process;
 	
+	g_proc_table[1].m_pid = PID_KCD;
+	g_proc_table[1].m_priority = 0;
+	g_proc_table[1].m_stack_size = 0x100;
+	g_proc_table[1].mpf_start_pc = &kcd_process;
+	
+	g_proc_table[2].m_pid = PID_CRT;
+	g_proc_table[2].m_priority = 0;
+	g_proc_table[2].m_stack_size = 0x100;
+	g_proc_table[2].mpf_start_pc = &crt_process;
+	
 	/* initilize exception stack frame (i.e. initial context) for each process */
-	for ( i = 0; i < NUM_TEST_PROCS + 1; i++) {
+	for ( i = 0; i < NUM_PROCS; i++) {
 		int j;
 		(gp_pcbs[i])->m_pid = (g_proc_table[i]).m_pid;
 		(gp_pcbs[i])->m_priority = (g_proc_table[i]).m_priority;
@@ -147,13 +157,13 @@ void process_init()
 		(gp_pcbs[i])->mp_sp = sp;
 	}
 
-	// Load ready queue
-	for (i = 0; i < NUM_TEST_PROCS; i++) {
-		priority = g_proc_table[i + 1].m_priority;
+	// Load ready queue	
+	for (i = 0; i < NUM_PROCS; i++) {
+		priority = g_proc_table[i].m_priority;
 		if (priority < 0 || priority > 3)
 			priority = 3;
 		
-		add_to_priority_queue(gp_pcbs[i + 1]);
+		add_to_priority_queue(gp_pcbs[i]);
 	}
 #ifdef DEBUG_0
 	printf("debug\n");

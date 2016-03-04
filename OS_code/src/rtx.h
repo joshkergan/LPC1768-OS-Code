@@ -5,6 +5,8 @@
 #ifndef RTX_H_
 #define RTX_H_
 
+#include "common.h"
+
 /* ----- Definitations ----- */
 #define RTX_ERR -1
 #define NULL 0

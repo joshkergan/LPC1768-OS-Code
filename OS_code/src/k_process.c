@@ -141,6 +141,11 @@ void process_init()
 	g_proc_table[2].m_stack_size = 0x100;
 	g_proc_table[2].mpf_start_pc = &crt_process;
 	
+	g_proc_table[3].m_pid = PID_CLOCK;
+	g_proc_table[3].m_priority = 0;
+	g_proc_table[3].m_stack_size = 0x100;
+	g_proc_table[3].mpf_start_pc = &clock_process;
+	
 	/* initilize exception stack frame (i.e. initial context) for each process */
 	for ( i = 0; i < NUM_PROCS; i++) {
 		int j;

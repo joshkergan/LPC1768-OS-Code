@@ -4,209 +4,453 @@
 <h1>µVision Build Log</h1>
 <h2>Project:</h2>
 N:\SE_350\SE_350\OS_code\context_switching.uvproj
-Project File Date:  03/01/2016
+Project File Date:  03/04/2016
 
 <h2>Output:</h2>
 Build target 'Context Switching SIM'
-compiling kcd.c...
-linking...
-Program Size: Code=5412 RO-data=412 RW-data=72 ZI-data=816  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
-Build target 'Context Switching SIM'
+compiling uart_polling.c...
+compiling main_svc.c...
+compiling uart_irq.c...
+compiling timer.c...
 compiling k_rtx_init.c...
 compiling k_memory.c...
 compiling k_process.c...
-src\k_process.c(137): error:  #20: identifier "kcd_process" is undefined
-src\k_process.c(157): error:  #20: identifier "NUM_SYS_PROCS" is undefined
 compiling k_priority_queue.c...
+compiling null_process.c...
 compiling kcd.c...
+src\kcd.c(55): warning:  #177-D: variable "message" was declared but never referenced
+compiling crt.c...
+src\crt.c(9): warning:  #223-D: function "uart_put_string" declared implicitly
 compiling usr_proc.c...
-Target not created
-Build target 'Context Switching SIM'
-compiling k_process.c...
-src\k_process.c(137): error:  #20: identifier "kcd_process" is undefined
-Target not created
-Build target 'Context Switching SIM'
-compiling k_rtx_init.c...
-compiling k_process.c...
 linking...
-Program Size: Code=5600 RO-data=412 RW-data=76 ZI-data=836  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
-Build target 'Context Switching SIM'
-compiling k_priority_queue.c...
-linking...
-Program Size: Code=5732 RO-data=412 RW-data=84 ZI-data=836  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
-Build target 'Context Switching SIM'
-compiling k_process.c...
-compiling k_priority_queue.c...
-linking...
-Program Size: Code=5752 RO-data=412 RW-data=84 ZI-data=836  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
-Build target 'Context Switching SIM'
-compiling k_process.c...
-src\k_process.c(161): error:  #17: expected a "]"
-Target not created
-Build target 'Context Switching SIM'
-compiling k_process.c...
-src\k_process.c(161): error:  #17: expected a "]"
-src\k_process.c(161): error:  #65: expected a ";"
-Target not created
-Build target 'Context Switching SIM'
-compiling k_process.c...
-linking...
-Program Size: Code=5728 RO-data=412 RW-data=84 ZI-data=836  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
-Build target 'Context Switching SIM'
-compiling kcd.c...
-src\kcd.c(54): warning:  #223-D: function "printf" declared implicitly
-src\kcd.c(52): warning:  #177-D: variable "message" was declared but never referenced
-linking...
-Program Size: Code=8552 RO-data=424 RW-data=96 ZI-data=1088  
+Program Size: Code=5912 RO-data=412 RW-data=92 ZI-data=892  
 "context_switching.axf" - 0 Error(s), 2 Warning(s).
 Build target 'Context Switching SIM'
-compiling kcd.c...
-src\kcd.c(55): warning:  #177-D: variable "message" was declared but never referenced
-linking...
-Program Size: Code=5744 RO-data=412 RW-data=84 ZI-data=836  
-"context_switching.axf" - 0 Error(s), 1 Warning(s).
-Build target 'Context Switching SIM'
-compiling kcd.c...
-src\kcd.c(55): warning:  #177-D: variable "message" was declared but never referenced
-linking...
-Program Size: Code=5744 RO-data=412 RW-data=84 ZI-data=836  
-"context_switching.axf" - 0 Error(s), 1 Warning(s).
-Build target 'Context Switching SIM'
-compiling timer.c...
-linking...
-Program Size: Code=5744 RO-data=412 RW-data=84 ZI-data=836  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
-Build target 'Context Switching SIM'
-compiling timer.c...
-linking...
-Program Size: Code=5720 RO-data=412 RW-data=84 ZI-data=836  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
-Build target 'Context Switching SIM'
-compiling k_rtx_init.c...
-compiling k_memory.c...
-compiling k_process.c...
-src\k_process.c(142): error:  #20: identifier "crt_process" is undefined
-compiling k_priority_queue.c...
-compiling kcd.c...
-src\kcd.c(55): warning:  #177-D: variable "message" was declared but never referenced
-compiling usr_proc.c...
-Target not created
-Build target 'Context Switching SIM'
-compiling k_rtx_init.c...
-compiling k_process.c...
 compiling crt.c...
-src\crt.c(2): error:  #118: a void function may not return a value
-src\crt.c(3): warning:  #1-D: last line of file ends without a newline
-Target not created
-Build target 'Context Switching SIM'
-compiling crt.c...
-src\crt.c(3): warning:  #1-D: last line of file ends without a newline
-linking...
-Program Size: Code=5724 RO-data=412 RW-data=84 ZI-data=852  
-"context_switching.axf" - 0 Error(s), 1 Warning(s).
-Build target 'Context Switching SIM'
-compiling uart_irq.c...
-compiling crt.c...
-src\crt.c(2): error:  #20: identifier "MSG_BUF" is undefined
-src\crt.c(2): error:  #20: identifier "message" is undefined
-Target not created
-Build target 'Context Switching SIM'
-compiling crt.c...
-src\crt.c(2): error:  #20: identifier "MSG_BUF" is undefined
-src\crt.c(2): error:  #20: identifier "message" is undefined
-Target not created
-Build target 'Context Switching SIM'
-compiling crt.c...
-linking...
-Program Size: Code=5760 RO-data=412 RW-data=92 ZI-data=892  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
-Build target 'Context Switching SIM'
-compiling uart_irq.c...
-src\uart_irq.c(218): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "char *"
-linking...
-Program Size: Code=5824 RO-data=412 RW-data=92 ZI-data=892  
-"context_switching.axf" - 0 Error(s), 1 Warning(s).
-Build target 'Context Switching SIM'
-compiling uart_irq.c...
-linking...
-Program Size: Code=5824 RO-data=412 RW-data=92 ZI-data=892  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
-Build target 'Context Switching SIM'
-compiling uart_irq.c...
-linking...
-Program Size: Code=5844 RO-data=412 RW-data=92 ZI-data=892  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
-Build target 'Context Switching SIM'
-compiling uart_irq.c...
-linking...
-Program Size: Code=5856 RO-data=412 RW-data=92 ZI-data=892  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
-Build target 'Context Switching SIM'
-compiling uart_irq.c...
-linking...
-Program Size: Code=5864 RO-data=412 RW-data=92 ZI-data=892  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
-Build target 'Context Switching SIM'
-compiling uart_irq.c...
-linking...
-Program Size: Code=5832 RO-data=412 RW-data=92 ZI-data=892  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
-Build target 'Context Switching SIM'
-compiling uart_irq.c...
-linking...
-Program Size: Code=5816 RO-data=412 RW-data=92 ZI-data=892  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
-Build target 'Context Switching SIM'
-compiling uart_irq.c...
-linking...
-Program Size: Code=5884 RO-data=412 RW-data=92 ZI-data=892  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
-Build target 'Context Switching SIM'
-compiling uart_irq.c...
-linking...
-Program Size: Code=5916 RO-data=412 RW-data=92 ZI-data=892  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
-Build target 'Context Switching SIM'
-compiling uart_irq.c...
-linking...
-Program Size: Code=5952 RO-data=412 RW-data=92 ZI-data=892  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
-Build target 'Context Switching SIM'
-compiling uart_irq.c...
-linking...
-Program Size: Code=5956 RO-data=412 RW-data=92 ZI-data=892  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
-Build target 'Context Switching SIM'
-compiling uart_irq.c...
 linking...
 Program Size: Code=5912 RO-data=412 RW-data=92 ZI-data=892  
 "context_switching.axf" - 0 Error(s), 0 Warning(s).
 Build target 'Context Switching SIM'
-compiling uart_irq.c...
+compiling kcd.c...
+src\kcd.c(55): warning:  #177-D: variable "message" was declared but never referenced
+compiling crt.c...
 linking...
-Program Size: Code=5840 RO-data=412 RW-data=92 ZI-data=892  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
+Program Size: Code=5920 RO-data=412 RW-data=92 ZI-data=892  
+"context_switching.axf" - 0 Error(s), 1 Warning(s).
 Build target 'Context Switching SIM'
-compiling uart_irq.c...
-linking...
-Program Size: Code=5860 RO-data=412 RW-data=92 ZI-data=892  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
+compiling kcd.c...
+src\kcd.c(63): error:  #136: struct "msgbuf" has no field "m_type"
+Target not created
 Build target 'Context Switching SIM'
+compiling kcd.c...
 linking...
-Program Size: Code=5860 RO-data=412 RW-data=92 ZI-data=892  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
+context_switching.axf: Error: L6218E: Undefined symbol k_send_message (referred from kcd.o).
+Target not created
 Build target 'Context Switching SIM'
-compiling uart_irq.c...
-linking...
-Program Size: Code=5860 RO-data=412 RW-data=92 ZI-data=892  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
+compiling kcd.c...
+src\kcd.c(60): error:  #20: identifier "null" is undefined
+Target not created
 Build target 'Context Switching SIM'
-compiling uart_irq.c...
+compiling kcd.c...
 linking...
-Program Size: Code=5896 RO-data=412 RW-data=92 ZI-data=892  
-"context_switching.axf" - 0 Error(s), 0 Warning(s).
+context_switching.axf: Error: L6218E: Undefined symbol k_receive_message (referred from kcd.o).
+context_switching.axf: Error: L6218E: Undefined symbol k_send_message (referred from kcd.o).
+Target not created
+Build target 'Context Switching SIM'
+compiling kcd.c...
+src\kcd.c(33): warning:  #223-D: function "strcmp" declared implicitly
+linking...
+context_switching.axf: Error: L6218E: Undefined symbol k_receive_message (referred from kcd.o).
+context_switching.axf: Error: L6218E: Undefined symbol k_send_message (referred from kcd.o).
+Target not created
+Build target 'Context Switching SIM'
+compiling kcd.c...
+src\string.h(2): error:  #77-D: this declaration has no storage class or type specifier
+src\string.h(2): error:  #65: expected a ";"
+src\string.h(12): warning:  #1-D: last line of file ends without a newline
+src\kcd.c(8): warning:  #12-D: parsing restarts here after previous syntax error
+src\kcd.c(14): error:  #20: identifier "g_kcd_list" is undefined
+src\kcd.c(30): error:  #20: identifier "g_kcd_list" is undefined
+src\kcd.c(34): warning:  #223-D: function "strcmp" declared implicitly
+Target not created
+Build target 'Context Switching SIM'
+compiling kcd.c...
+src\string.h(1): error:  #77-D: this declaration has no storage class or type specifier
+src\string.h(1): error:  #65: expected a ";"
+src\string.h(11): warning:  #1-D: last line of file ends without a newline
+src\kcd.c(8): warning:  #12-D: parsing restarts here after previous syntax error
+src\kcd.c(14): error:  #20: identifier "g_kcd_list" is undefined
+src\kcd.c(30): error:  #20: identifier "g_kcd_list" is undefined
+src\kcd.c(34): warning:  #223-D: function "strcmp" declared implicitly
+Target not created
+Build target 'Context Switching SIM'
+compiling string.c...
+src\string.c(11): warning:  #1-D: last line of file ends without a newline
+compiling kcd.c...
+src\string.h(6): warning:  #1-D: last line of file ends without a newline
+linking...
+context_switching.axf: Error: L6218E: Undefined symbol k_receive_message (referred from kcd.o).
+context_switching.axf: Error: L6218E: Undefined symbol k_send_message (referred from kcd.o).
+Target not created
+Build target 'Context Switching SIM'
+compiling string.c...
+compiling kcd.c...
+linking...
+context_switching.axf: Error: L6218E: Undefined symbol k_receive_message (referred from kcd.o).
+context_switching.axf: Error: L6218E: Undefined symbol k_send_message (referred from kcd.o).
+Target not created
+Build target 'Context Switching SIM'
+compiling string.c...
+compiling kcd.c...
+linking...
+context_switching.axf: Error: L6218E: Undefined symbol k_receive_message (referred from kcd.o).
+context_switching.axf: Error: L6218E: Undefined symbol k_send_message (referred from kcd.o).
+Target not created
+Build target 'Context Switching SIM'
+compiling k_rtx_init.c...
+compiling k_memory.c...
+compiling k_process.c...
+src\k_process.c(147): error:  #20: identifier "clock_process" is undefined
+compiling k_priority_queue.c...
+compiling kcd.c...
+compiling clock.c...
+compiling usr_proc.c...
+Target not created
+Build target 'Context Switching SIM'
+compiling k_process.c...
+src\k_process.c(147): error:  #20: identifier "clock_process" is undefined
+compiling clock.c...
+src\clock.c(3): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Context Switching SIM'
+compiling k_rtx_init.c...
+compiling k_process.c...
+linking...
+context_switching.axf: Error: L6218E: Undefined symbol k_receive_message (referred from kcd.o).
+context_switching.axf: Error: L6218E: Undefined symbol k_send_message (referred from kcd.o).
+Target not created
+Build target 'Context Switching SIM'
+compiling string.c...
+src\string.c(31): error:  #118: a void function may not return a value
+compiling kcd.c...
+src\kcd.c(34): error:  #41: expression must have arithmetic or pointer type
+compiling clock.c...
+src\clock.c(9): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(10): error:  #20: identifier "MSG_BUF" is undefined
+src\clock.c(10): error:  #20: identifier "message" is undefined
+src\clock.c(11): error:  #268: declaration may not appear after executable statement in block
+src\clock.c(13): error:  #268: declaration may not appear after executable statement in block
+src\clock.c(14): error:  #268: declaration may not appear after executable statement in block
+src\clock.c(15): error:  #268: declaration may not appear after executable statement in block
+src\clock.c(21): warning:  #223-D: function "request_memory_block" declared implicitly
+src\clock.c(22): error:  #20: identifier "DEFAULT" is undefined
+src\clock.c(23): warning:  #223-D: function "strcpy" declared implicitly
+src\clock.c(24): warning:  #223-D: function "send_message" declared implicitly
+src\clock.c(24): error:  #20: identifier "PID_CRT" is undefined
+src\clock.c(28): error:  #20: identifier "MSG_BUF" is undefined
+src\clock.c(28): error:  #20: identifier "message" is undefined
+src\clock.c(29): error:  #268: declaration may not appear after executable statement in block
+src\clock.c(29): error:  #20: identifier "true" is undefined
+src\clock.c(30): error:  #268: declaration may not appear after executable statement in block
+src\clock.c(30): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(33): warning:  #223-D: function "request_memory_block" declared implicitly
+src\clock.c(34): error:  #20: identifier "KCD_REG" is undefined
+src\clock.c(35): warning:  #223-D: function "strcpy" declared implicitly
+src\clock.c(36): warning:  #223-D: function "send_message" declared implicitly
+src\clock.c(36): error:  #20: identifier "PID_KCD" is undefined
+src\clock.c(39): warning:  #223-D: function "receive_message" declared implicitly
+src\clock.c(39): error:  #20: identifier "NULL" is undefined
+src\clock.c(40): error:  #20: identifier "PID_TIMER_IPROC" is undefined
+src\clock.c(51): error:  #53: expected a ":"
+src\clock.c(56): warning:  #12-D: parsing restarts here after previous syntax error
+src\clock.c(62): warning:  #223-D: function "release_memory_block" declared implicitly
+src\clock.c(64): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Context Switching SIM'
+compiling string.c...
+src\string.c(31): error:  #118: a void function may not return a value
+compiling kcd.c...
+src\kcd.c(34): error:  #41: expression must have arithmetic or pointer type
+compiling clock.c...
+src\clock.c(11): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(23): warning:  #223-D: function "request_memory_block" declared implicitly
+src\clock.c(23): error:  #513: a value of type "int" cannot be assigned to an entity of type "MSG_BUF *"
+src\clock.c(24): error:  #154: expression must have struct or union type
+src\clock.c(25): warning:  #223-D: function "strcpy" declared implicitly
+src\clock.c(25): error:  #154: expression must have struct or union type
+src\clock.c(26): warning:  #223-D: function "send_message" declared implicitly
+src\clock.c(31): error:  #20: identifier "true" is undefined
+src\clock.c(32): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(35): warning:  #223-D: function "request_memory_block" declared implicitly
+src\clock.c(35): error:  #513: a value of type "int" cannot be assigned to an entity of type "MSG_BUF *"
+src\clock.c(36): error:  #154: expression must have struct or union type
+src\clock.c(37): warning:  #223-D: function "strcpy" declared implicitly
+src\clock.c(37): error:  #154: expression must have struct or union type
+src\clock.c(38): warning:  #223-D: function "send_message" declared implicitly
+src\clock.c(41): warning:  #223-D: function "receive_message" declared implicitly
+src\clock.c(41): error:  #513: a value of type "int" cannot be assigned to an entity of type "MSG_BUF *"
+src\clock.c(53): error:  #53: expected a ":"
+src\clock.c(58): warning:  #12-D: parsing restarts here after previous syntax error
+src\clock.c(64): warning:  #223-D: function "release_memory_block" declared implicitly
+src\clock.c(66): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Context Switching SIM'
+compiling string.c...
+src\string.c(31): error:  #118: a void function may not return a value
+compiling kcd.c...
+src\kcd.c(34): error:  #41: expression must have arithmetic or pointer type
+compiling clock.c...
+src\clock.c(11): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(23): warning:  #223-D: function "request_memory_block" declared implicitly
+src\clock.c(23): error:  #513: a value of type "int" cannot be assigned to an entity of type "MSG_BUF *"
+src\clock.c(24): error:  #154: expression must have struct or union type
+src\clock.c(25): warning:  #223-D: function "strcpy" declared implicitly
+src\clock.c(25): error:  #154: expression must have struct or union type
+src\clock.c(26): warning:  #223-D: function "send_message" declared implicitly
+src\clock.c(31): error:  #20: identifier "true" is undefined
+src\clock.c(32): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(35): warning:  #223-D: function "request_memory_block" declared implicitly
+src\clock.c(35): error:  #513: a value of type "int" cannot be assigned to an entity of type "MSG_BUF *"
+src\clock.c(36): error:  #154: expression must have struct or union type
+src\clock.c(37): warning:  #223-D: function "strcpy" declared implicitly
+src\clock.c(37): error:  #154: expression must have struct or union type
+src\clock.c(38): warning:  #223-D: function "send_message" declared implicitly
+src\clock.c(41): warning:  #223-D: function "receive_message" declared implicitly
+src\clock.c(41): error:  #513: a value of type "int" cannot be assigned to an entity of type "MSG_BUF *"
+src\clock.c(56): error:  #53: expected a ":"
+src\clock.c(64): warning:  #223-D: function "release_memory_block" declared implicitly
+src\clock.c(66): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Context Switching SIM'
+compiling string.c...
+src\string.c(31): error:  #118: a void function may not return a value
+compiling kcd.c...
+src\kcd.c(34): error:  #41: expression must have arithmetic or pointer type
+compiling clock.c...
+src\clock.c(12): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(24): warning:  #223-D: function "request_memory_block" declared implicitly
+src\clock.c(24): error:  #513: a value of type "int" cannot be assigned to an entity of type "MSG_BUF *"
+src\clock.c(25): error:  #154: expression must have struct or union type
+src\clock.c(26): error:  #154: expression must have struct or union type
+src\clock.c(27): warning:  #223-D: function "send_message" declared implicitly
+src\clock.c(32): error:  #20: identifier "true" is undefined
+src\clock.c(33): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(36): warning:  #223-D: function "request_memory_block" declared implicitly
+src\clock.c(36): error:  #513: a value of type "int" cannot be assigned to an entity of type "MSG_BUF *"
+src\clock.c(37): error:  #154: expression must have struct or union type
+src\clock.c(38): error:  #154: expression must have struct or union type
+src\clock.c(39): warning:  #223-D: function "send_message" declared implicitly
+src\clock.c(42): warning:  #223-D: function "receive_message" declared implicitly
+src\clock.c(42): error:  #513: a value of type "int" cannot be assigned to an entity of type "MSG_BUF *"
+src\clock.c(57): error:  #53: expected a ":"
+src\clock.c(65): warning:  #223-D: function "release_memory_block" declared implicitly
+src\clock.c(67): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Context Switching SIM'
+compiling string.c...
+src\string.c(31): error:  #118: a void function may not return a value
+compiling kcd.c...
+src\kcd.c(34): error:  #41: expression must have arithmetic or pointer type
+compiling clock.c...
+src\clock.c(12): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(24): warning:  #223-D: function "request_memory_block" declared implicitly
+src\clock.c(24): error:  #513: a value of type "int" cannot be assigned to an entity of type "MSG_BUF *"
+src\clock.c(25): error:  #154: expression must have struct or union type
+src\clock.c(26): error:  #154: expression must have struct or union type
+src\clock.c(27): warning:  #223-D: function "send_message" declared implicitly
+src\clock.c(32): error:  #20: identifier "true" is undefined
+src\clock.c(33): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(36): warning:  #223-D: function "request_memory_block" declared implicitly
+src\clock.c(36): error:  #513: a value of type "int" cannot be assigned to an entity of type "MSG_BUF *"
+src\clock.c(39): warning:  #223-D: function "send_message" declared implicitly
+src\clock.c(42): warning:  #223-D: function "receive_message" declared implicitly
+src\clock.c(42): error:  #513: a value of type "int" cannot be assigned to an entity of type "MSG_BUF *"
+src\clock.c(57): error:  #53: expected a ":"
+src\clock.c(65): warning:  #223-D: function "release_memory_block" declared implicitly
+src\clock.c(67): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Context Switching SIM'
+compiling string.c...
+src\string.c(31): error:  #118: a void function may not return a value
+compiling kcd.c...
+src\kcd.c(34): error:  #41: expression must have arithmetic or pointer type
+compiling clock.c...
+src\clock.c(12): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(24): warning:  #223-D: function "request_memory_block" declared implicitly
+src\clock.c(24): error:  #513: a value of type "int" cannot be assigned to an entity of type "MSG_BUF *"
+src\clock.c(25): error:  #154: expression must have struct or union type
+src\clock.c(26): error:  #154: expression must have struct or union type
+src\clock.c(27): warning:  #223-D: function "send_message" declared implicitly
+src\clock.c(32): error:  #20: identifier "true" is undefined
+src\clock.c(33): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(36): warning:  #223-D: function "request_memory_block" declared implicitly
+src\clock.c(36): error:  #513: a value of type "int" cannot be assigned to an entity of type "MSG_BUF *"
+src\clock.c(39): warning:  #223-D: function "send_message" declared implicitly
+src\clock.c(42): warning:  #223-D: function "receive_message" declared implicitly
+src\clock.c(42): error:  #513: a value of type "int" cannot be assigned to an entity of type "MSG_BUF *"
+src\clock.c(57): error:  #53: expected a ":"
+src\clock.c(65): warning:  #223-D: function "release_memory_block" declared implicitly
+src\clock.c(67): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Context Switching SIM'
+compiling string.c...
+src\string.c(31): error:  #118: a void function may not return a value
+compiling kcd.c...
+src\kcd.c(34): error:  #41: expression must have arithmetic or pointer type
+compiling clock.c...
+src\clock.c(12): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(24): warning:  #223-D: function "request_memory_block" declared implicitly
+src\clock.c(24): error:  #513: a value of type "int" cannot be assigned to an entity of type "MSG_BUF *"
+src\clock.c(25): error:  #154: expression must have struct or union type
+src\clock.c(26): error:  #154: expression must have struct or union type
+src\clock.c(27): warning:  #223-D: function "send_message" declared implicitly
+src\clock.c(32): error:  #20: identifier "true" is undefined
+src\clock.c(33): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(36): warning:  #223-D: function "request_memory_block" declared implicitly
+src\clock.c(36): error:  #513: a value of type "int" cannot be assigned to an entity of type "MSG_BUF *"
+src\clock.c(39): warning:  #223-D: function "send_message" declared implicitly
+src\clock.c(42): warning:  #223-D: function "receive_message" declared implicitly
+src\clock.c(42): error:  #513: a value of type "int" cannot be assigned to an entity of type "MSG_BUF *"
+src\clock.c(57): error:  #53: expected a ":"
+src\clock.c(65): warning:  #223-D: function "release_memory_block" declared implicitly
+src\clock.c(67): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Context Switching SIM'
+compiling string.c...
+src\string.c(31): error:  #118: a void function may not return a value
+compiling kcd.c...
+src\kcd.c(33): error:  #41: expression must have arithmetic or pointer type
+src\kcd.c(43): error:  #20: identifier "MSG_BUF" is undefined
+src\kcd.c(43): error:  #20: identifier "message" is undefined
+src\kcd.c(44): error:  #20: identifier "new_message" is undefined
+src\kcd.c(45): error:  #268: declaration may not appear after executable statement in block
+compiling clock.c...
+src\clock.c(12): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(13): error:  #20: identifier "MSG_BUF" is undefined
+src\clock.c(13): error:  #20: identifier "message" is undefined
+src\clock.c(14): error:  #268: declaration may not appear after executable statement in block
+src\clock.c(16): error:  #268: declaration may not appear after executable statement in block
+src\clock.c(17): error:  #268: declaration may not appear after executable statement in block
+src\clock.c(18): error:  #268: declaration may not appear after executable statement in block
+src\clock.c(31): error:  #20: identifier "MSG_BUF" is undefined
+src\clock.c(31): error:  #20: identifier "message" is undefined
+src\clock.c(32): error:  #268: declaration may not appear after executable statement in block
+src\clock.c(32): error:  #20: identifier "true" is undefined
+src\clock.c(33): error:  #268: declaration may not appear after executable statement in block
+src\clock.c(33): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(57): error:  #53: expected a ":"
+src\clock.c(67): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Context Switching SIM'
+compiling main_svc.c...
+compiling string.c...
+src\string.c(31): error:  #118: a void function may not return a value
+compiling null_process.c...
+compiling kcd.c...
+src\kcd.c(33): error:  #41: expression must have arithmetic or pointer type
+compiling clock.c...
+src\clock.c(12): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(25): error:  #154: expression must have struct or union type
+src\clock.c(26): error:  #154: expression must have struct or union type
+src\clock.c(32): error:  #20: identifier "true" is undefined
+src\clock.c(33): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(57): error:  #53: expected a ":"
+src\clock.c(67): warning:  #1-D: last line of file ends without a newline
+compiling usr_proc.c...
+Target not created
+Build target 'Context Switching SIM'
+compiling string.c...
+src\string.c(25): error:  #20: identifier "bool" is undefined
+compiling kcd.c...
+src\kcd.c(33): error:  #41: expression must have arithmetic or pointer type
+compiling clock.c...
+src\clock.c(12): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(25): error:  #154: expression must have struct or union type
+src\clock.c(26): error:  #154: expression must have struct or union type
+src\clock.c(32): error:  #20: identifier "true" is undefined
+src\clock.c(33): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(57): error:  #53: expected a ":"
+src\clock.c(67): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Context Switching SIM'
+compiling string.c...
+src\string.c(25): error:  #20: identifier "BOOl" is undefined
+compiling kcd.c...
+src\kcd.c(33): error:  #41: expression must have arithmetic or pointer type
+compiling clock.c...
+src\clock.c(12): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(25): error:  #154: expression must have struct or union type
+src\clock.c(26): error:  #154: expression must have struct or union type
+src\clock.c(32): error:  #20: identifier "true" is undefined
+src\clock.c(33): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(57): error:  #53: expected a ":"
+src\clock.c(67): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Context Switching SIM'
+compiling string.c...
+compiling kcd.c...
+src\kcd.c(33): error:  #41: expression must have arithmetic or pointer type
+compiling clock.c...
+src\clock.c(12): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(25): error:  #154: expression must have struct or union type
+src\clock.c(26): error:  #154: expression must have struct or union type
+src\clock.c(32): error:  #20: identifier "true" is undefined
+src\clock.c(33): error:  #20: identifier "uint32_t" is undefined
+src\clock.c(57): error:  #53: expected a ":"
+src\clock.c(67): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Context Switching SIM'
+compiling kcd.c...
+src\kcd.c(33): error:  #41: expression must have arithmetic or pointer type
+compiling clock.c...
+src\clock.c(25): error:  #154: expression must have struct or union type
+src\clock.c(26): error:  #154: expression must have struct or union type
+src\clock.c(32): error:  #20: identifier "true" is undefined
+src\clock.c(57): error:  #53: expected a ":"
+src\clock.c(67): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Context Switching SIM'
+compiling kcd.c...
+src\kcd.c(33): error:  #41: expression must have arithmetic or pointer type
+compiling clock.c...
+src\clock.c(25): error:  #154: expression must have struct or union type
+src\clock.c(26): error:  #154: expression must have struct or union type
+src\clock.c(32): error:  #20: identifier "true" is undefined
+src\clock.c(57): error:  #20: identifier "false" is undefined
+src\clock.c(67): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Context Switching SIM'
+compiling kcd.c...
+src\kcd.c(33): error:  #41: expression must have arithmetic or pointer type
+compiling clock.c...
+src\clock.c(25): error:  #154: expression must have struct or union type
+src\clock.c(26): error:  #154: expression must have struct or union type
+src\clock.c(67): warning:  #1-D: last line of file ends without a newline
+Target not created
+Build target 'Context Switching SIM'
+compiling kcd.c...
+src\kcd.c(33): error:  #41: expression must have arithmetic or pointer type
+compiling clock.c...
+src\clock.c(25): error:  #154: expression must have struct or union type
+src\clock.c(26): error:  #154: expression must have struct or union type
+Target not created
+Build target 'Context Switching SIM'
+compiling kcd.c...
+src\kcd.c(33): error:  #41: expression must have arithmetic or pointer type
+compiling clock.c...
+Target not created
+Build target 'Context Switching SIM'
+compiling kcd.c...
+compiling clock.c...
+linking...
+context_switching.axf: Error: L6218E: Undefined symbol k_receive_message (referred from kcd.o).
+context_switching.axf: Error: L6218E: Undefined symbol k_send_message (referred from kcd.o).
+Target not created
+Build target 'Context Switching SIM'
+compiling string.c...
+compiling kcd.c...
+compiling clock.c...
+linking...
+context_switching.axf: Error: L6218E: Undefined symbol k_receive_message (referred from kcd.o).
+context_switching.axf: Error: L6218E: Undefined symbol k_send_message (referred from kcd.o).
+Target not created

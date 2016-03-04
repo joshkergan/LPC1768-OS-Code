@@ -35,8 +35,11 @@ extern struct free_heap_block* gp_free_space;
 extern U32 *alloc_stack(U32 size_b);   /* allocate stack for a process */
 extern void __rte(void);               /* pop exception stack frame */
 extern void set_test_procs(void);      /* test process initial set up */
+
+// System processes
 extern void k_null_process(void);			 /* the null process */
 extern void kcd_process(void);
 extern void crt_process(void);
+extern void clock_process(void);
 
 #endif /* ! K_PROCESS_H_ */

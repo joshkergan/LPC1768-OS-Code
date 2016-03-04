@@ -1,22 +1,10 @@
-#include "k_rtx.h"
 #include "kcd.h"
 
 //TODO: delete
 #include "printf.h"
+#include "string.h"
 
 KCD *g_kcd_list = NULL;
-
-int strcmp(char *s1, char *s2) {
-	while (*s1 == *s2 && *s1 != '\0') {
-		s1++;
-		s2++;
-	}
-	
-	if (*s1 == '\0' && *s2 == '\0')
-		return 0;
-	
-	return (*s1 < *s2) ? -1 : 1;
-}
 
 void add_kcd_command(char *str, int pid) {
 	int i = 0;
@@ -42,7 +30,7 @@ int get_kcd_handler(char *str) {
 	
 	while (curr) {
 		// compare strings
-		if (0 == strcmp(str, curr->m_command))
+		if (is_prefix(curr->m_command, str))
 			return curr->m_pid;
 		
 		curr = curr->mp_next;
@@ -53,10 +41,30 @@ int get_kcd_handler(char *str) {
 
 void kcd_process(void) {
 	MSG_BUF *message;
+	MSG_BUF *new_message;
+	int pid;
 	while (1) {
 		// Block until next message
-		//message = receive_message(null);
+		message = receive_message(NULL);
 		//TODO: Check to make sure message has correct form
-		//add_kcd_command(message->mtext, message->m_send_pid);
+		switch (message->mtype) {
+			case KCD_REG:
+				// Register a new command
+				add_kcd_command(message->mtext, message->m_send_pid);
+				break;
+			case DEFAULT:
+				// From UART i-process
+				pid = get_kcd_handler(message->mtext);
+				if (pid != -1) {
+					// If we have a registered handler, send it a copy of the message
+					new_message = request_memory_block();
+					*new_message = *message;
+					send_message(pid, new_message);
+				}
+				send_message(PID_CRT, message);
+				break;
+			default:
+				release_memory_block(message);
+		}
 	}
 }

@@ -7,9 +7,6 @@
  
 #ifndef K_RTX_H_
 #define K_RTX_H_
-
-#include "common.h"
-
 /*----- Definitations -----*/
 #include "common.h"
 
@@ -18,13 +15,12 @@
 #define NUM_PROCS					(NUM_TEST_PROCS + NUM_SYSTEM_PROCS)
 #define NUM_PRIORITIES 		4
 
-
 /*----- Types -----*/
 typedef unsigned char U8;
 typedef unsigned int U32;
 
 /* process states, note we only assume three states in this example */
-typedef enum {NEW = 0, RDY, RUN, BLOCKED} PROC_STATE_E;  
+typedef enum {NEW = 0, RDY, RUN, BLOCKED_ON_MEMORY, BLOCKED_ON_RECEIVE} PROC_STATE_E;  
 
 /*
   PCB data structure definition.

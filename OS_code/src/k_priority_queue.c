@@ -135,7 +135,8 @@ PCB *find_first_blocked(void) {
 	// First check system queue
 	cur_proc = g_sys_pqueue.first;
 	while (cur_proc) {
-		if (cur_proc->m_state == BLOCKED)
+		if (cur_proc->m_state == BLOCKED_ON_RECEIVE || 
+			cur_proc->m_state == BLOCKED_ON_MEMORY)
 			return cur_proc;
 		cur_proc = cur_proc->mp_next;
 	}
@@ -144,7 +145,8 @@ PCB *find_first_blocked(void) {
 	for (i = 0; i < NUM_PRIORITIES; i++) {
 		cur_proc = gp_pqueue[i].first;
 		while (cur_proc) {
-			if (cur_proc->m_state == BLOCKED)
+			if (cur_proc->m_state == BLOCKED_ON_RECEIVE || 
+				cur_proc->m_state == BLOCKED_ON_MEMORY)
 				return cur_proc;
 			cur_proc = cur_proc->mp_next;
 		}
@@ -202,7 +204,8 @@ void print_mem_blocked(void) {
 		PCB *cur_proc = gp_pqueue[i].first;
 		printf("priority %d: ", i);
 		while (cur_proc) {
-			if (cur_proc->m_state == BLOCKED) {
+			if (cur_proc->m_state == BLOCKED_ON_RECEIVE || 
+				cur_proc->m_state == BLOCKED_ON_MEMORY) {
 				printf("%d,", cur_proc->m_pid);
 			}
 			

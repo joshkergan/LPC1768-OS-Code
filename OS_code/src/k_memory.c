@@ -140,7 +140,7 @@ void *k_request_memory_block(void) {
 		printf("Blocking process: %d\n", gp_current_process->m_pid);
 #endif /* ! DEBUG_0 */
 		// suspends the process
-		gp_current_process->m_state = BLOCKED;
+		gp_current_process->m_state = BLOCKED_ON_MEMORY;
 		g_num_blocked++;
 		k_release_processor();
 		mem_alloced = gp_current_process->mp_assigned_mem;

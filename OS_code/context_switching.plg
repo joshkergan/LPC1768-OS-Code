@@ -27,3 +27,187 @@ compiling usr_proc.c...
 linking...
 Program Size: Code=5896 RO-data=412 RW-data=92 ZI-data=892  
 "context_switching.axf" - 0 Error(s), 1 Warning(s).
+Build target 'Context Switching SIM'
+compiling k_memory.c...
+compiling k_message.c...
+src\k_message.c(14): warning:  #940-D: missing return statement at end of non-void function "find_message_from"
+src\k_message.c(18): error:  #268: declaration may not appear after executable statement in block
+src\k_message.c(18): warning:  #177-D: variable "message" was declared but never referenced
+src\k_message.c(33): error:  #268: declaration may not appear after executable statement in block
+Target not created
+Build target 'Context Switching SIM'
+compiling k_message.c...
+src\k_message.c(14): warning:  #940-D: missing return statement at end of non-void function "find_message_from"
+src\k_message.c(19): warning:  #177-D: variable "message" was declared but never referenced
+src\k_message.c(35): error:  #268: declaration may not appear after executable statement in block
+Target not created
+Build target 'Context Switching SIM'
+compiling k_message.c...
+src\k_message.c(14): warning:  #940-D: missing return statement at end of non-void function "find_message_from"
+src\k_message.c(17): warning:  #550-D: variable "message" was set but never used
+linking...
+Program Size: Code=5896 RO-data=412 RW-data=92 ZI-data=892  
+"context_switching.axf" - 0 Error(s), 2 Warning(s).
+Build target 'Context Switching SIM'
+compiling main_svc.c...
+compiling uart_irq.c...
+compiling k_rtx_init.c...
+src\k_rtx.h(18): error:  #20: identifier "PCB" is undefined
+compiling k_memory.c...
+src\k_rtx.h(18): error:  #20: identifier "PCB" is undefined
+src\k_memory.c(140): error:  #132: expression must have pointer-to-struct-or-union type
+src\k_memory.c(143): error:  #132: expression must have pointer-to-struct-or-union type
+src\k_memory.c(146): error:  #132: expression must have pointer-to-struct-or-union type
+compiling k_process.c...
+src\k_rtx.h(18): error:  #20: identifier "PCB" is undefined
+src\k_process.c(60): error:  #132: expression must have pointer-to-struct-or-union type
+src\k_process.c(62): error:  #132: expression must have pointer-to-struct-or-union type
+src\k_process.c(63): error:  #132: expression must have pointer-to-struct-or-union type
+src\k_process.c(79): error:  #132: expression must have pointer-to-struct-or-union type
+src\k_process.c(201): error:  #132: expression must have pointer-to-struct-or-union type
+src\k_process.c(215): error:  #132: expression must have pointer-to-struct-or-union type
+src\k_process.c(216): error:  #132: expression must have pointer-to-struct-or-union type
+src\k_process.c(239): error:  #132: expression must have pointer-to-struct-or-union type
+src\k_process.c(246): error:  #132: expression must have pointer-to-struct-or-union type
+src\k_process.c(249): error:  #132: expression must have pointer-to-struct-or-union type
+src\k_process.c(260): error:  #132: expression must have pointer-to-struct-or-union type
+src\k_process.c(261): error:  #132: expression must have pointer-to-struct-or-union type
+compiling k_priority_queue.c...
+src\k_rtx.h(18): error:  #20: identifier "PCB" is undefined
+compiling null_process.c...
+compiling kcd.c...
+src\k_rtx.h(18): error:  #20: identifier "PCB" is undefined
+src\kcd.c(55): warning:  #177-D: variable "message" was declared but never referenced
+compiling k_message.c...
+src\k_rtx.h(18): error:  #20: identifier "PCB" is undefined
+src\k_message.c(16): warning:  #940-D: missing return statement at end of non-void function "find_message_from"
+src\k_message.c(23): error:  #20: identifier "null" is undefined
+src\k_message.c(27): error:  #132: expression must have pointer-to-struct-or-union type
+src\k_message.c(30): warning:  #223-D: function "message_queue_empty" declared implicitly
+src\k_message.c(37): warning:  #140-D: too many arguments in function call
+src\k_message.c(38): error:  #20: identifier "receiving_process" is undefined
+src\k_message.c(38): error:  #20: identifier "BLOCKED_ON_RECEIVE" is undefined
+src\k_message.c(39): error:  #20: identifier "READY" is undefined
+src\k_message.c(40): warning:  #223-D: function "enqueue" declared implicitly
+src\k_message.c(50): error:  #167: argument of type "int *" is incompatible with parameter of type "int"
+src\k_message.c(51): error:  #20: identifier "current_process" is undefined
+src\k_message.c(51): error:  #20: identifier "BLOCKED_ON_RECEIVE" is undefined
+src\k_message.c(52): warning:  #223-D: function "release_processor" declared implicitly
+compiling usr_proc.c...
+Target not created
+Build target 'Context Switching SIM'
+compiling k_rtx_init.c...
+compiling k_memory.c...
+compiling k_process.c...
+compiling k_priority_queue.c...
+compiling kcd.c...
+src\kcd.c(55): warning:  #177-D: variable "message" was declared but never referenced
+compiling k_message.c...
+src\k_message.c(18): warning:  #940-D: missing return statement at end of non-void function "find_message_from"
+src\k_message.c(25): error:  #20: identifier "null" is undefined
+src\k_message.c(32): warning:  #223-D: function "message_queue_empty" declared implicitly
+src\k_message.c(39): warning:  #140-D: too many arguments in function call
+src\k_message.c(40): error:  #20: identifier "receiving_process" is undefined
+src\k_message.c(40): error:  #20: identifier "BLOCKED_ON_RECEIVE" is undefined
+src\k_message.c(41): error:  #20: identifier "READY" is undefined
+src\k_message.c(42): warning:  #223-D: function "enqueue" declared implicitly
+src\k_message.c(52): error:  #167: argument of type "int *" is incompatible with parameter of type "int"
+src\k_message.c(53): error:  #20: identifier "current_process" is undefined
+src\k_message.c(53): error:  #20: identifier "BLOCKED_ON_RECEIVE" is undefined
+src\k_message.c(54): warning:  #223-D: function "release_processor" declared implicitly
+Target not created
+Build target 'Context Switching SIM'
+compiling main_svc.c...
+compiling uart_irq.c...
+compiling k_rtx_init.c...
+compiling k_memory.c...
+compiling k_process.c...
+src\k_process.c(216): error:  #20: identifier "BLOCKED_ON_RECIEVE" is undefined
+compiling k_priority_queue.c...
+compiling null_process.c...
+compiling kcd.c...
+src\kcd.c(55): warning:  #177-D: variable "message" was declared but never referenced
+compiling k_message.c...
+src\k_message.c(7): error:  #148: variable "p_msg_boxes_start" has already been initialized
+src\k_message.c(12): error:  #20: identifier "p_msg_boxes_end" is undefined
+src\k_message.c(14): error:  #20: identifier "p_msg_boxes_end" is undefined
+src\k_message.c(37): error:  #20: identifier "p_msg_boxes_end" is undefined
+src\k_message.c(55): error:  #167: argument of type "MSG_BUF *" is incompatible with parameter of type "U32"
+src\k_message.c(55): error:  #165: too few arguments in function call
+src\k_message.c(56): error:  #20: identifier "receiving_process" is undefined
+src\k_message.c(57): error:  #20: identifier "READY" is undefined
+src\k_message.c(66): error:  #167: argument of type "int *" is incompatible with parameter of type "int"
+src\k_message.c(67): error:  #20: identifier "current_process" is undefined
+src\k_message.c(68): warning:  #223-D: function "release_processor" declared implicitly
+compiling usr_proc.c...
+Target not created
+Build target 'Context Switching SIM'
+compiling k_process.c...
+compiling k_message.c...
+src\k_message.c(56): error:  #20: identifier "receiving_process" is undefined
+src\k_message.c(57): error:  #20: identifier "READY" is undefined
+src\k_message.c(66): error:  #167: argument of type "int *" is incompatible with parameter of type "int"
+src\k_message.c(67): error:  #20: identifier "current_process" is undefined
+src\k_message.c(68): warning:  #223-D: function "release_processor" declared implicitly
+Target not created
+Build target 'Context Switching SIM'
+compiling k_message.c...
+src\k_message.c(53): error:  #29: expected an expression
+src\k_message.c(57): error:  #44: expression must have pointer type
+src\k_message.c(58): error:  #44: expression must have pointer type
+src\k_message.c(58): error:  #20: identifier "READY" is undefined
+src\k_message.c(67): error:  #167: argument of type "int *" is incompatible with parameter of type "int"
+src\k_message.c(68): error:  #20: identifier "current_process" is undefined
+src\k_message.c(69): warning:  #223-D: function "release_processor" declared implicitly
+Target not created
+Build target 'Context Switching SIM'
+compiling k_message.c...
+src\k_message.c(57): error:  #44: expression must have pointer type
+src\k_message.c(58): error:  #44: expression must have pointer type
+src\k_message.c(58): error:  #20: identifier "READY" is undefined
+src\k_message.c(67): error:  #167: argument of type "int *" is incompatible with parameter of type "int"
+src\k_message.c(68): error:  #20: identifier "current_process" is undefined
+src\k_message.c(69): warning:  #223-D: function "release_processor" declared implicitly
+Target not created
+Build target 'Context Switching SIM'
+compiling k_message.c...
+src\k_message.c(45): error:  #144: a value of type "PCB *" cannot be used to initialize an entity of type "int"
+src\k_message.c(53): error:  #44: expression must have pointer type
+src\k_message.c(57): error:  #44: expression must have pointer type
+src\k_message.c(58): error:  #44: expression must have pointer type
+src\k_message.c(58): error:  #20: identifier "READY" is undefined
+src\k_message.c(67): error:  #167: argument of type "int *" is incompatible with parameter of type "int"
+src\k_message.c(68): error:  #20: identifier "current_process" is undefined
+src\k_message.c(69): warning:  #223-D: function "release_processor" declared implicitly
+Target not created
+Build target 'Context Switching SIM'
+compiling k_message.c...
+src\k_message.c(57): error:  #136: struct "pcb" has no field "state"
+src\k_message.c(58): error:  #136: struct "pcb" has no field "state"
+src\k_message.c(58): error:  #20: identifier "READY" is undefined
+src\k_message.c(67): error:  #167: argument of type "int *" is incompatible with parameter of type "int"
+src\k_message.c(68): error:  #20: identifier "current_process" is undefined
+src\k_message.c(69): warning:  #223-D: function "release_processor" declared implicitly
+Target not created
+Build target 'Context Switching SIM'
+compiling k_message.c...
+src\k_message.c(58): error:  #20: identifier "READY" is undefined
+src\k_message.c(67): error:  #167: argument of type "int *" is incompatible with parameter of type "int"
+src\k_message.c(68): error:  #20: identifier "current_process" is undefined
+src\k_message.c(69): warning:  #223-D: function "release_processor" declared implicitly
+Target not created
+Build target 'Context Switching SIM'
+compiling k_message.c...
+src\k_message.c(68): error:  #20: identifier "current_process" is undefined
+src\k_message.c(69): warning:  #223-D: function "release_processor" declared implicitly
+Target not created
+Build target 'Context Switching SIM'
+compiling k_message.c...
+src\k_message.c(68): error:  #136: struct "pcb" has no field "state"
+src\k_message.c(69): warning:  #223-D: function "release_processor" declared implicitly
+Target not created
+Build target 'Context Switching SIM'
+compiling k_message.c...
+linking...
+Program Size: Code=5920 RO-data=412 RW-data=92 ZI-data=892  
+"context_switching.axf" - 0 Error(s), 0 Warning(s).

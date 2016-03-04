@@ -42,7 +42,6 @@
 #define PID_TIMER_IPROC  14
 #define PID_UART_IPROC   15
 
-
 /* Process Priority. The bigger the number is, the lower the priority is*/
 #define HIGH    0
 #define MEDIUM  1
@@ -55,9 +54,9 @@
 #define CRT_DISPLAY 2
 
 #ifdef DEBUG_0
-#define USR_SZ_STACK 0x300         /* user proc stack size 1732B   */
+#define USR_SZ_STACK 0x300         /* user proc stack size 768B  */
 #else
-#define USR_SZ_STACK 0x100         /* user proc stack size 218B  */
+#define USR_SZ_STACK 0x100         /* user proc stack size 256B  */
 #endif /* DEBUG_0 */
 
 /* ----- Types ----- */

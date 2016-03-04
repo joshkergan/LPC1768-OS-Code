@@ -212,7 +212,8 @@ PCB *scheduler(void)
 		return gp_pcbs[0];
 	}
 	
-	if (gp_current_process->m_state == BLOCKED ||
+	if (gp_current_process->m_state == BLOCKED_ON_MEMORY || 
+		gp_current_process->m_state == BLOCKED_ON_RECEIVE ||
 		  process->m_priority <= gp_current_process->m_priority) {
 		process = remove_by_PID(process->m_pid);
 		return process;

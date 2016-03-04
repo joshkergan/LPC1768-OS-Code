@@ -26,4 +26,10 @@ int uart_put_char(int n_uart, unsigned char c);   /* write a char   to n_uart */
 int uart_put_string(int n_uart, unsigned char *s);/* write a string to n_uart */
 void putc(void *p, char c);     /* call back function for printf, use uart1 */
 
+#ifdef _DEBUG_HOTKEYS
+extern void print_ready(void);
+extern void print_mem_blocked(void);
+extern void print_receive_blocked(void);
+#endif
+
 #endif /* ! UART_POLLING_H_ */

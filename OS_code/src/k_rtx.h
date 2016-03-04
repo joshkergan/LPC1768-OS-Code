@@ -8,12 +8,15 @@
 #ifndef K_RTX_H_
 #define K_RTX_H_
 
+#include "common.h"
+
 /*----- Definitations -----*/
 #include "common.h"
 
-#define NUM_TEST_PROCS 	6
-#define NUM_PROCS				(NUM_TEST_PROCS + 1)
-#define NUM_PRIORITIES 	4
+#define NUM_TEST_PROCS 		6
+#define NUM_SYSTEM_PROCS 	3
+#define NUM_PROCS					(NUM_TEST_PROCS + NUM_SYSTEM_PROCS)
+#define NUM_PRIORITIES 		4
 
 
 /*----- Types -----*/
@@ -37,7 +40,6 @@ typedef struct pcb
 	PROC_STATE_E m_state;   /* state of the process */      
 	void *mp_assigned_mem;   /* memory returned from begin blocked */
 } PCB;
-
 
 typedef struct pcb_queue
 {

@@ -18,6 +18,12 @@
 #define RTX_OK 0
 #define NUM_TEST_PROCS 6
 
+#ifdef _DEBUG_HOTKEYS
+#define READY_Q_COMMAND 'Q'
+#define MEMORY_Q_COMMAND 'M'
+#define RECEIVE_Q_COMMAND 'R'
+#endif
+
 /* Process IDs */
 #define PID_NULL 0
 #define PID_P1   1
@@ -48,7 +54,6 @@
 #define KCD_REG 1
 #define CRT_DISPLAY 2
 
-
 #ifdef DEBUG_0
 #define USR_SZ_STACK 0x300         /* user proc stack size 1732B   */
 #else
@@ -64,7 +69,7 @@ typedef unsigned int U32;
 /* initialization table item, exposed to user space */
 typedef struct proc_init
 {	
-	int m_pid;	            /* process id */ 
+	int m_pid;	        /* process id */ 
 	int m_priority;         /* initial priority, not used in this example. */ 
 	int m_stack_size;       /* size of stack in words */
 	void (*mpf_start_pc) ();/* entry point of the process */    

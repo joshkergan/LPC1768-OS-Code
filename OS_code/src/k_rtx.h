@@ -8,6 +8,8 @@
 #ifndef K_RTX_H_
 #define K_RTX_H_
 
+#include "common.h"
+
 /*----- Definitations -----*/
 
 #define RTX_ERR -1
@@ -15,9 +17,10 @@
 
 #define NULL 0
 
-#define NUM_TEST_PROCS 	6
-#define NUM_PROCS				(NUM_TEST_PROCS + 1)
-#define NUM_PRIORITIES 	4
+#define NUM_TEST_PROCS 		6
+#define NUM_SYSTEM_PROCS 	3
+#define NUM_PROCS					(NUM_TEST_PROCS + NUM_SYSTEM_PROCS)
+#define NUM_PRIORITIES 		4
 
 #ifdef DEBUG_0
 #define USR_SZ_STACK 0x300         /* user proc stack size 1732B   */
@@ -49,13 +52,13 @@ typedef struct pcb
 } PCB;
 
 /* initialization table item */
-typedef struct proc_init
-{	
-	int m_pid;	        /* process id */ 
-	int m_priority;         /* initial priority, not used in this example. */ 
-	int m_stack_size;       /* size of stack in words */
-	void (*mpf_start_pc) ();/* entry point of the process */    
-} PROC_INIT;
+//typedef struct proc_init
+//{	
+//	int m_pid;	        /* process id */ 
+//	int m_priority;         /* initial priority, not used in this example. */ 
+//	int m_stack_size;       /* size of stack in words */
+//	void (*mpf_start_pc) ();/* entry point of the process */    
+//} PROC_INIT;*/
 
 typedef struct pcb_queue
 {

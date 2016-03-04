@@ -128,6 +128,8 @@ U32 *alloc_stack(U32 size_b)
  */
 void *k_request_memory_block(void) {
 	void* mem_alloced;
+	
+	__disable_irq();
 #ifdef DEBUG_0 
 	printf("k_request_memory_block: entering...\n");
 #endif /* ! DEBUG_0 */
@@ -152,6 +154,7 @@ void *k_request_memory_block(void) {
 	printf("Assigning memory block: 0x%x", mem_alloced);
 #endif
 	
+	__enable_irq();
 	return mem_alloced;
 }
 
@@ -166,6 +169,8 @@ void *k_request_memory_block(void) {
  */
 int k_release_memory_block(void *p_mem_blk) {
 	struct free_heap_block* next_block = (struct free_heap_block *)p_mem_blk;
+	
+	__disable_irq();
 #ifdef DEBUG_0 
 	printf("k_release_memory_block: releasing block @ 0x%x\n", p_mem_blk);
 #endif /* ! DEBUG_0 */
@@ -181,5 +186,6 @@ int k_release_memory_block(void *p_mem_blk) {
 		k_release_processor();
 	}
 	
+	__enable_irq();
 	return RTX_OK;
 }

@@ -8,12 +8,17 @@
 #include <LPC17xx.h>
 #include "uart.h"
 #include "uart_polling.h"
+#include "common.h"
 #ifdef DEBUG_0
 #include "printf.h"
 #endif
 
 
 uint8_t g_buffer[]= "You Typed a Q\n\r";
+uint8_t g_in_buffer[40];
+uint32_t g_in_index = 0;
+uint8_t g_is_reading = 0;
+
 uint8_t *gp_buffer = g_buffer;
 uint8_t g_send_char = 0;
 uint8_t g_char_in;
@@ -201,12 +206,53 @@ void c_UART0_IRQHandler(void)
 #endif // DEBUG_0
 		g_buffer[12] = g_char_in; // nasty hack
 		g_send_char = 1;
-		
+
 		/* setting the g_switch_flag */
-		if ( g_char_in == 'S' ) {
-			g_switch_flag = 1; 
-		} else {
-			g_switch_flag = 0;
+		switch (g_char_in) {
+			case '\r':
+			case '\n':
+				if (g_is_reading) {
+					g_is_reading = 0;
+					g_in_buffer[g_in_index] = '\0';
+					// do something
+					printf("received message:\n\r");
+					printf((char *)g_in_buffer);
+					printf("\n");
+					g_in_index = 0;
+				}
+				break;
+			case '%':
+				if (!g_is_reading) {
+					printf("Starting to read command\n");
+					g_is_reading = 1;
+					g_in_index = 1;
+					g_in_buffer[0] = '%';
+					break;
+				}
+			//case 'S':
+			//	g_switch_flag = 1;
+			//	break;
+#ifdef _DEBUG_HOTKEYS
+			case READY_Q_COMMAND:
+				if (!g_is_reading) {
+					print_ready();
+					break;
+				}
+			case MEMORY_Q_COMMAND:
+				if (!g_is_reading) {
+					print_mem_blocked();
+					break;
+				}
+			case RECEIVE_Q_COMMAND:
+				if (!g_is_reading) {
+					print_receive_blocked();
+					break;
+				}
+#endif
+			default:
+				if (g_is_reading) {
+					g_in_buffer[g_in_index++] = g_char_in;
+				}
 		}
 	} else if (IIR_IntId & IIR_THRE) {
 	/* THRE Interrupt, transmit holding register becomes empty */

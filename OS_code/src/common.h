@@ -42,6 +42,7 @@
 #define PID_TIMER_IPROC  14
 #define PID_UART_IPROC   15
 
+
 /* Process Priority. The bigger the number is, the lower the priority is*/
 #define HIGH    0
 #define MEDIUM  1

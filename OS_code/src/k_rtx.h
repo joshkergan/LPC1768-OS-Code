@@ -10,10 +10,16 @@
 /*----- Definitations -----*/
 #include "common.h"
 
+#define RTX_ERR -1
+#define RTX_OK  0
+
+#define NULL 0
+
 #define NUM_TEST_PROCS 		6
-#define NUM_SYSTEM_PROCS 	3
+#define NUM_SYSTEM_PROCS 	4 // NULL, KCD, CRT, CLOCK
 #define NUM_PROCS					(NUM_TEST_PROCS + NUM_SYSTEM_PROCS)
 #define NUM_PRIORITIES 		4
+
 
 /*----- Types -----*/
 typedef unsigned char U8;

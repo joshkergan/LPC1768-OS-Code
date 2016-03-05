@@ -4,13 +4,8 @@
 #include "stdint.h"
 #include "rtx.h"
 
-/* ----- RTX User API ----- */
-#define __SVC_0  __svc_indirect(0)
-
-/* Memory Management */
-extern void *k_request_memory_block(void);
-#define request_memory_block() _request_memory_block((U32)k_request_memory_block)
-extern void *_request_memory_block(U32 p_func) __SVC_0;
+extern int k_send_message(int pid, void *p_msg);
+extern void *k_receive_message(int *p_pid);
 
 typedef struct kcd_command {
 	struct kcd_command *mp_next;

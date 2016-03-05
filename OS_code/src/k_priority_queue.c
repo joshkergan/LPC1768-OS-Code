@@ -118,6 +118,7 @@ void add_to_priority_queue(PCB *process) {
 	switch (process->m_pid) {
 		case PID_CRT:
 		case PID_KCD:
+		case PID_CLOCK:
 			enqueue(&g_sys_pqueue, process);
 			break;
 		default:

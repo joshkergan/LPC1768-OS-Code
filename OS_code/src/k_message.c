@@ -18,14 +18,16 @@ void enqueue_message(int m_recv_id, MSG_BUF* p_msg){
 	p_msg->mp_next = NULL;
 }
 
-MSG_BUF* find_message_from(int sender_id){
+MSG_BUF* find_message_from(int* sender_id){
 	int m_recv_id = gp_current_process->m_pid;
 	MSG_BUF* message = p_msg_boxes_start[m_recv_id];
 	MSG_BUF* last = NULL;
 	
-	while (message != NULL && message->m_send_pid != sender_id) {
-		last = message;
-		message = message->mp_next;
+	if(sender_id != NULL) {
+		while (message != NULL && message->m_send_pid != (int)sender_id) {
+			last = message;
+			message = message->mp_next;
+		}
 	}
 	
 	if (message != NULL) {
@@ -41,7 +43,7 @@ MSG_BUF* find_message_from(int sender_id){
 	return message;
 }
 
-int send_message(int process_id, void *message_envelope){
+int k_send_message(int process_id, void *message_envelope){
 	MSG_BUF* message;
 	PCB* receiving_process = gp_current_process;
 	__disable_irq();
@@ -62,10 +64,10 @@ int send_message(int process_id, void *message_envelope){
 	return RTX_OK;
 }
 
-void* receive_message(int *sender_id){ // TODO: WHY IS sender_id A POINTER?!?!
+void* k_receive_message(int *sender_id){
 	MSG_BUF* message;
 	__disable_irq();
-	while ((message = find_message_from((int)sender_id)) == NULL) {
+	while ((message = find_message_from(sender_id)) == NULL) {
 		gp_current_process->m_state = BLOCKED_ON_RECEIVE;
 		k_release_processor();
 	}

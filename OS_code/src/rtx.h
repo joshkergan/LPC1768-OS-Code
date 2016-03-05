@@ -8,10 +8,6 @@
 /* ----- Definitations ----- */
 #include "common.h"
 
-/* ----- Types ----- */
-typedef unsigned int U32;
-
-
 /* ----- RTX User API ----- */
 #define __SVC_0  __svc_indirect(0)
 

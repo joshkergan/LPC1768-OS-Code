@@ -1,0 +1,101 @@
+int k_set_process_priority(int process_id, int priority)
+	atomic(on)
+	
+	if (process_id = 0 or priority < 0 or priority > 3) :
+		atomic(off)
+		return ERR
+		
+	if process_id is current process:
+		if priority was decreased:
+			current_priority = priority
+			k_release_processor()
+		
+		atomic(off)
+		return OK
+		
+	process = remove_by_PID(process_id)
+	
+	process.priority = priority
+	add_to_priority_queue(process)
+	
+	if priority was increased:
+		k_release_processor()
+		
+	atomic(off)
+	return OK
+	
+
+int k_get_process_priority(int process_id)
+	atomic(on)
+	for each PCB:
+		if PCB.pid = process_id:
+			atomic(off)
+			return PCB.priority
+			
+	atomic(off)
+	return ERR
+	
+void process_init()
+	set_test_procs()
+	for each test_proc
+		copy test_proc to process table
+		
+	initialize null_process
+	initialize kcd_process
+	initialize crt_process
+	initialize clock_process
+	
+	for each process
+		setup stack frame
+		
+	for each process
+		add_to_priority_queue(process)
+	
+PCB *scheduler()
+	if this is the first time running
+		return null_process
+		
+	if memory was released
+		find first memory blocked process
+		set process state to ready
+		num_blocked = num_blocked - 1
+		assign free memory block
+		if priority is greater than current process
+			return process
+		else
+			return current_process
+			
+	process = find_first_ready()
+	if no ready process:
+		return null_process
+		
+	if current process is blocked or process has higher priority:
+		process = remove_by_PID(process.pid)
+		return process
+		
+	return current process
+	
+int k_release_processor()
+	atomic(on)
+	old = current_process
+	current_process = scheduler()
+	
+	if current_process is invalid
+		current_process = old
+		atomic(off)
+		return ERR
+		
+	if current_process = old
+		atomic(off)
+		return OK
+		
+	if old is invalid
+		old = current_process
+	else
+		add_to_priority_queue(old)
+		
+	process_switch(old)
+	atomic(off)
+	return OK
+			
+			

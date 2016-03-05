@@ -1,0 +1,25 @@
+void memory_init()
+	p_end = RAM LIMIT + 4 byte padding
+	p_end += size of PCB pointers
+	p_end += size of priority queue
+	for each PCB:
+		set PCBpointer to p_end
+		p_end += size of PCB
+		
+		
+		
+		
+void * k_request_memory_block()
+	atomic(on)
+	
+	if no free space:
+		current_process.state = BLOCKED_ON_MEMORY
+		num_blocked = num_blocked + 1
+		k_release_processor()
+		mem_alloced = current_process.assigned_mem
+	else:
+		mem_alloced = next block
+		free space = mem_alloced.next
+		
+	atomic(off)
+	return mem_alloced

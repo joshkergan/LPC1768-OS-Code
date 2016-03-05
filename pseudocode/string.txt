@@ -1,0 +1,18 @@
+int strcmp(char *s1, char *s2)
+	find the first character in the string that differs
+	if there is no character:
+		return 0
+	return left_character < right_character
+	
+void strcpy(char *src, char *dest)
+	for each character in src:
+		copy character to dest
+		
+int is_prefix(char *pre, char *test)
+	find the first character in test that doesn't match pre
+	if no character:
+		return true
+	else
+		return false
+	
+	

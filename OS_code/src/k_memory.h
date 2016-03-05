@@ -19,7 +19,7 @@ extern unsigned int Image$$RW_IRAM1$$ZI$$Limit;
 extern PCB **gp_pcbs;
 extern QUEUE *gp_pqueue;
 extern PROC_INIT g_proc_table[NUM_TEST_PROCS];
-extern U32 g_num_blocked;
+extern U32 g_num_mem_blocked;
 extern U32 g_released_memory;
 extern PCB *gp_current_process;
 extern int k_release_processor(void);

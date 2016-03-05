@@ -180,10 +180,11 @@ PCB * find_first_ready(void) {
 	return NULL;
 }
 
+#ifdef DEBUG_0
 #ifdef _DEBUG_HOTKEYS
 void print_ready(void) {
 	int i;
-	printf("Ready processes:\n");
+	//printf("Ready processes:\n");
 	for (i = 0; i < NUM_PRIORITIES; i++) {
 		PCB *cur_proc = gp_pqueue[i].first;
 		printf("priority %d: ", i);
@@ -200,7 +201,7 @@ void print_ready(void) {
 
 void print_mem_blocked(void) {
 	int i;
-	printf("Memory blocked processes:\n");
+	//printf("Memory blocked processes:\n");
 	for (i = 0; i < NUM_PRIORITIES; i++) {
 		PCB *cur_proc = gp_pqueue[i].first;
 		printf("priority %d: ", i);
@@ -220,5 +221,5 @@ void print_receive_blocked(void) {
 	
 }
 #endif /* _DEBUG_HOTKEYS */
-
+#endif /* DEBUG_0 */
 #endif /* K_PRIORITY_QUEUE_H */

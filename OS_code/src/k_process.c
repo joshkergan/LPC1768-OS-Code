@@ -26,7 +26,7 @@
 PCB **gp_pcbs;                  /* array of pcbs */
 PCB *gp_current_process = NULL; /* always point to the current RUN process */
 
-U32 g_num_blocked = 0;					/* the number of blocked processes */
+U32 g_num_mem_blocked = 0;					/* the number of memory blocked processes */
 U32 g_released_memory = 0;
 
 U32 g_switch_flag = 0;          /* whether to continue to run the process before the UART receive interrupt */
@@ -59,9 +59,12 @@ int k_set_process_priority(int process_id, int priority) {
 	
 	if (process_id == gp_current_process->m_pid) {
 		// Modifying the priority of the running process
-		gp_current_process->m_priority = priority;
-		if (priority >= gp_current_process->m_priority)
+		if (priority >= gp_current_process->m_priority) {
+			gp_current_process->m_priority = priority;
 			k_release_processor();
+		} else {
+			gp_current_process->m_priority = priority;
+		}
 		
 		__enable_irq();
 		return 0;
@@ -128,22 +131,22 @@ void process_init()
 	// Set initilization values for the system processes
 	g_proc_table[0].m_pid = PID_NULL;
 	g_proc_table[0].m_priority = 4;
-	g_proc_table[0].m_stack_size = 0x100;
+	g_proc_table[0].m_stack_size = 0x300;
 	g_proc_table[0].mpf_start_pc = &k_null_process;
 	
 	g_proc_table[1].m_pid = PID_KCD;
 	g_proc_table[1].m_priority = 0;
-	g_proc_table[1].m_stack_size = 0x100;
+	g_proc_table[1].m_stack_size = 0x300;
 	g_proc_table[1].mpf_start_pc = &kcd_process;
 	
 	g_proc_table[2].m_pid = PID_CRT;
 	g_proc_table[2].m_priority = 0;
-	g_proc_table[2].m_stack_size = 0x100;
+	g_proc_table[2].m_stack_size = 0x300;
 	g_proc_table[2].mpf_start_pc = &crt_process;
 	
 	g_proc_table[3].m_pid = PID_CLOCK;
 	g_proc_table[3].m_priority = 0;
-	g_proc_table[3].m_stack_size = 0x100;
+	g_proc_table[3].m_stack_size = 0x300;
 	g_proc_table[3].mpf_start_pc = &clock_process;
 
 	/* initilize exception stack frame (i.e. initial context) for each process */
@@ -199,7 +202,7 @@ PCB *scheduler(void)
 		process = find_first_blocked();
 		if (process) {
 			process->m_state = RDY;
-			g_num_blocked--;
+			g_num_mem_blocked--;
 			process->mp_assigned_mem = (void*)gp_free_space;
 			gp_free_space = gp_free_space->next;
 			g_released_memory = 0;
@@ -284,7 +287,7 @@ int k_release_processor(void)
 	__disable_irq();
 	
 #ifdef DEBUG_0
-	printf("PCB1: %x PCB2: %x PCB3: %x PCB4: %x \n", gp_pcbs[1]->mp_sp, gp_pcbs[2]->mp_sp, gp_pcbs[3]->mp_sp, gp_pcbs[4]->mp_sp);
+	//printf("PCB1: %x PCB2: %x PCB3: %x PCB4: %x \n", gp_pcbs[1]->mp_sp, gp_pcbs[2]->mp_sp, gp_pcbs[3]->mp_sp, gp_pcbs[4]->mp_sp);
 #endif
 	
 	p_pcb_old = gp_current_process;

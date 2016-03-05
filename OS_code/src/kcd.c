@@ -10,6 +10,9 @@ KCD *g_kcd_list = NULL;
 void add_kcd_command(char *str, int pid) {
 	int i = 0;
 	KCD *command = request_memory_block();
+	#ifdef DEBUG_0
+	printf("Adding command %s\n\r", str);
+	#endif
 	
 	command->mp_next = g_kcd_list;
 	command->m_pid = pid;
@@ -52,6 +55,7 @@ void kcd_process(void) {
 			case KCD_REG:
 				// Register a new command
 				add_kcd_command(message->mtext, message->m_send_pid);
+				release_memory_block(message);
 				break;
 			case DEFAULT:
 				// From UART i-process
@@ -64,8 +68,6 @@ void kcd_process(void) {
 				}
 				send_message(PID_CRT, message);
 				break;
-			default:
-				release_memory_block(message);
 		}
 	}
 }

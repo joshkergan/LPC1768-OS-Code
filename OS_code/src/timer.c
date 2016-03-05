@@ -118,6 +118,11 @@ void c_TIMER0_IRQHandler(void)
 	LPC_TIM0->IR = BIT(0);  
 	
 	g_timer_count++ ;
-	//printf("timer! %d\n", g_timer_count);
+	if(p_dely_msg_box != NULL)
+	while(p_dely_msg_box->m_kdata[0] <= g_timer_count) {
+		MSG_BUF* message = p_dely_msg_box;
+		p_dely_msg_box = p_dely_msg_box->mp_next;
+		k_delayed_enqueue(message);
+	}
 }
 

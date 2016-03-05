@@ -1,6 +1,8 @@
 #include "clock.h"
 #include "string.h"
 
+#include "printf.h"
+
 static void print_2digit(int val, char *buff) {
 	int tens = val / 10 % 10;
 	int ones = val % 10;
@@ -18,19 +20,20 @@ static int read_2digit(char *buff) {
 
 static void print_time(uint32_t time) {
 	MSG_BUF *message;
-	char *buff = "00:00:00";
 	
 	int hours = time / 60 / 60 % 24;
 	int minutes = time / 60 % 60;
 	int seconds = time % 60;
 	
-	print_2digit(hours, buff);
-	print_2digit(minutes, buff + 3);
-	print_2digit(seconds, buff + 6);
-	
 	message = request_memory_block();
 	message->mtype = DEFAULT;
-	strcpy(buff, message->mtext);
+	strcpy("00:00:00\r\n", message->mtext);
+	
+	print_2digit(hours, message->mtext);
+	print_2digit(minutes, message->mtext + 3);
+	print_2digit(seconds, message->mtext + 6);
+	
+	printf("sending to CRT: %s", message->mtext);
 	send_message(PID_CRT, message);
 }
 
@@ -70,11 +73,15 @@ void clock_process(void) {
 	strcpy("%W", message->mtext);
 	send_message(PID_KCD, message);
 	
+	message = request_memory_block();
+	delayed_send(PID_CLOCK, message, 100);
+	
 	while (is_running) {
 		message = receive_message(NULL);
-		if (message->m_send_pid == PID_TIMER_IPROC) {
+		if (message->m_send_pid == PID_CLOCK) {
 			time++;
 			print_time(time);
+			delayed_send(PID_CLOCK, message, 100);
 		} else if (message->mtext[0] == '%' && message->mtext[1] == 'W') {
 			switch(message->mtext[2]) {
 				case 'R':
@@ -83,6 +90,7 @@ void clock_process(void) {
 					break;
 				case 'S':
 					// Set
+				printf("set time: %s\n\r", message->mtext);
 					if (!is_valid_time(message->mtext + 4))
 						break;
 					
@@ -100,8 +108,11 @@ void clock_process(void) {
 					break;
 			}
 			print_time(time);
+			release_memory_block(message);
+			message = NULL;
 		}
-		
-		release_memory_block(message);
 	}
+	
+	if (message)
+		release_memory_block(message);
 }

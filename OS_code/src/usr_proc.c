@@ -97,7 +97,7 @@ void proc1(void)
 			uart0_put_string("\n\r");
 			p_mem_blk = request_memory_block();
 #ifdef DEBUG_0
-			printf("proc1: p_mem_blk=0x%x\n", p_mem_blk);
+			//printf("proc1: p_mem_blk=0x%x\n", p_mem_blk);
 #endif /* DEBUG_0 */
 		}
 		uart0_put_char('A' + i%26);
@@ -126,7 +126,7 @@ void proc2(void)
 			uart0_put_string("\n\r");
 			ret_val = release_memory_block(p_mem_blk);
 #ifdef DEBUG_0
-			printf("proc2: ret_val=%d\n", ret_val);
+			//printf("proc2: ret_val=%d\n", ret_val);
 #endif /* DEBUG_0 */
 			if ( ret_val == -1 ) {
 				break;

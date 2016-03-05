@@ -131,7 +131,7 @@ void *k_request_memory_block(void) {
 	
 	__disable_irq();
 #ifdef DEBUG_0 
-	printf("k_request_memory_block: entering...\n");
+	//printf("k_request_memory_block: entering...\n");
 #endif /* ! DEBUG_0 */
 	
 	// No free heap memory -> block thread
@@ -141,7 +141,7 @@ void *k_request_memory_block(void) {
 #endif /* ! DEBUG_0 */
 		// suspends the process
 		gp_current_process->m_state = BLOCKED_ON_MEMORY;
-		g_num_blocked++;
+		g_num_mem_blocked++;
 		k_release_processor();
 		mem_alloced = gp_current_process->mp_assigned_mem;
 	} else {
@@ -151,7 +151,7 @@ void *k_request_memory_block(void) {
 	}
 	
 #ifdef DEBUG_0
-	printf("Assigning memory block: 0x%x", mem_alloced);
+	//printf("Assigning memory block: 0x%x\n\r", mem_alloced);
 #endif
 	
 	__enable_irq();
@@ -172,7 +172,7 @@ int k_release_memory_block(void *p_mem_blk) {
 	
 	__disable_irq();
 #ifdef DEBUG_0 
-	printf("k_release_memory_block: releasing block @ 0x%x\n", p_mem_blk);
+	//printf("k_release_memory_block: releasing block @ 0x%x\n", p_mem_blk);
 #endif /* ! DEBUG_0 */
 	
 	// !!! Assuming p_mem_blk is allocated, and can be freed by current process
@@ -181,7 +181,7 @@ int k_release_memory_block(void *p_mem_blk) {
 	next_block->next = gp_free_space;
 	gp_free_space = next_block;
 	
-	if (g_num_blocked > 0) {
+	if (g_num_mem_blocked > 0) {
 		g_released_memory = 1;
 		k_release_processor();
 	}

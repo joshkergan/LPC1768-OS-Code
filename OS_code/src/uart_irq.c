@@ -9,6 +9,7 @@
 #include "uart.h"
 #include "uart_polling.h"
 #include "common.h"
+#include "string.h"
 #ifdef DEBUG_0
 #include "printf.h"
 #endif
@@ -19,6 +20,8 @@ uint8_t g_in_buffer[40];
 uint32_t g_in_index = 0;
 uint8_t g_is_reading = 0;
 
+uint8_t message_container[128 / sizeof(uint8_t)];
+MSG_BUF *g_uart_message = (MSG_BUF *)message_container;
 uint8_t *gp_buffer = g_buffer;
 uint8_t g_send_char = 0;
 uint8_t g_char_in;
@@ -27,6 +30,7 @@ uint8_t g_char_out;
 extern uint32_t g_switch_flag;
 
 extern int k_release_processor(void);
+extern int k_send_message(int pid, void *p_msg);
 /**
  * @brief: initialize the n_uart
  * NOTES: It only supports UART0. It can be easily extended to support UART1 IRQ.
@@ -215,15 +219,14 @@ void c_UART0_IRQHandler(void)
 					g_is_reading = 0;
 					g_in_buffer[g_in_index] = '\0';
 					// do something
-					printf("received message:\n\r");
-					printf((char *)g_in_buffer);
-					printf("\n");
+					//printf("received message: %s\n\r", g_in_buffer);
+				  strcpy((char *)g_in_buffer, g_uart_message->mtext);
+					k_send_message(PID_KCD, g_uart_message);
 					g_in_index = 0;
 				}
 				break;
 			case '%':
 				if (!g_is_reading) {
-					printf("Starting to read command\n");
 					g_is_reading = 1;
 					g_in_index = 1;
 					g_in_buffer[0] = '%';
@@ -232,6 +235,7 @@ void c_UART0_IRQHandler(void)
 			//case 'S':
 			//	g_switch_flag = 1;
 			//	break;
+#ifdef DEBUG_0
 #ifdef _DEBUG_HOTKEYS
 			case READY_Q_COMMAND:
 				if (!g_is_reading) {
@@ -248,6 +252,7 @@ void c_UART0_IRQHandler(void)
 					print_receive_blocked();
 					break;
 				}
+#endif
 #endif
 			default:
 				if (g_is_reading) {

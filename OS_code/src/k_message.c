@@ -1,11 +1,14 @@
 #include "common.h"
 #include "k_rtx.h"
 
+extern volatile uint32_t g_timer_count;
 extern PCB *gp_current_process;
 extern int k_release_processor(void);
 
 MSG_BUF* p_msg_boxes_start[NUM_PROCS] = {NULL};
 MSG_BUF* p_msg_boxes_end[NUM_PROCS] = {NULL};
+
+MSG_BUF* p_dely_msg_box = NULL;
 
 void enqueue_message(int m_recv_id, MSG_BUF* p_msg){
 	if (p_msg_boxes_start[m_recv_id] == NULL) {
@@ -74,4 +77,41 @@ void* k_receive_message(int *sender_id){
 	__enable_irq();
 
 	return message;
+}
+
+void k_delayed_enqueue(void *p_msg) {
+	MSG_BUF* message = (MSG_BUF*) p_msg;
+	__disable_irq();	
+	
+	enqueue_message(process_id, message);
+	if (receiving_process->m_state == BLOCKED_ON_RECEIVE) {
+		receiving_process->m_state = RDY;
+	}	
+	__enable_irq();
+}
+
+int k_delayed_send(int pid, void *p_msg, int delay) {
+	MSG_BUF* message = (MSG_BUF*)p_msg;
+	MSG_BUF* queue = p_dely_msg_box;
+	MSG_BUF* last = NULL;
+	PCB* receiving_process = gp_current_process;
+	
+	message->m_send_pid = receiving_process->m_pid;
+	message->m_recv_pid = process_id;
+	message->data[0] = g_timer_count + delay;
+	__disable_irq();
+	
+	while (queue != NULL && queue->data[0] <= message->data[0]) {
+		last = queue;
+		queue = queue->next;
+	}
+	
+	message->p_next = queue;
+	if (last == NULL) {
+		p_dely_msg_box = message;
+	} else {
+		last->next = message;
+	}
+	
+	__enable_irq();
 }

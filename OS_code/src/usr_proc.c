@@ -95,7 +95,6 @@ void proc1(void)
 	while ( 1 ) {
 		if ( i != 0 && i%5 == 0 ) {
 			uart0_put_string("\n\r");
-			p_mem_blk = request_memory_block();
 #ifdef DEBUG_0
 			//printf("proc1: p_mem_blk=0x%x\n", p_mem_blk);
 #endif /* DEBUG_0 */
@@ -119,12 +118,10 @@ void proc2(void)
 			printf("proc2: starting...\n");
 #endif
 	
-	p_mem_blk = request_memory_block();
 	set_process_priority(PID_P2, MEDIUM);
 	while ( 1) {
 		if ( i != 0 && i%5 == 0 ) {
 			uart0_put_string("\n\r");
-			ret_val = release_memory_block(p_mem_blk);
 #ifdef DEBUG_0
 			//printf("proc2: ret_val=%d\n", ret_val);
 #endif /* DEBUG_0 */
@@ -153,13 +150,11 @@ void proc3(void)
 	
 	for (i = 0; i < 30; i++) {
 		uart0_put_string("proc3 requesting block\n");
-		p_mem_blks[i] = request_memory_block();
 	}
 	set_process_priority(4, HIGH);
 	set_process_priority(3, MEDIUM);
 	for (i = 0; i < 30; i++) {
 		uart0_put_string("proc3 releasing block\n");
-		release_memory_block(p_mem_blks[i]);
 	}
 	
 	while(1)

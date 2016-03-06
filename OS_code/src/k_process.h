@@ -28,7 +28,7 @@ int k_release_processor(void);           /* kernel release_process function */
 
 extern PCB *remove_by_PID(int);				 /* Remove a process from the queue by it's id */
 extern void add_to_priority_queue(PCB *); /* Add a process to the priority queue */
-extern PCB *find_first_blocked(void);  /* Retrieve the highest priority blocked process */
+extern PCB *find_first_mem_blocked(void);  /* Retrieve the highest priority blocked process */
 extern PCB *find_first_ready(void);    /* Retrieve the highest priority ready process */
 
 extern struct free_heap_block* gp_free_space;
@@ -37,6 +37,7 @@ extern void __rte(void);               /* pop exception stack frame */
 extern void set_test_procs(void);      /* test process initial set up */
 
 // System processes
+extern void timer_iprocess(void);
 extern void k_null_process(void);			 /* the null process */
 extern void kcd_process(void);
 extern void crt_process(void);

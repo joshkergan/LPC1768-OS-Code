@@ -27,4 +27,5 @@ void k_rtx_init(void)
 	uart1_put_string("An input other than 'S' in COM0 terminal will be have no effect.\n\r"); 
 	/* start the first process */
 	k_release_processor();
+	__enable_irq();
 }

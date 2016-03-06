@@ -2,6 +2,10 @@
 #include "k_rtx.h"
 #include <stdint.h>
 
+#ifdef DEBUG_0
+#include "printf.h"
+#endif
+
 #define MSG_BUF_COUNT 10
 
 extern volatile uint32_t g_timer_count;
@@ -14,6 +18,8 @@ typedef struct message_info {
 	int m_sender_pid;
 	int m_recver_pid;
 	FUNC_CALL e_call_type;
+	int m_timestamp;
+	char m_text[16];
 } MSG_INFO;
 
 MSG_BUF* p_msg_boxes_start[NUM_PROCS] = {NULL};
@@ -32,6 +38,7 @@ void unblock_receiver (int m_pid) {
 	
 	if (cur_program->m_state == BLOCKED_ON_RECEIVE) {
 		cur_program->m_state = RDY;
+		__enable_irq();
 		k_release_processor();
 	}
 }
@@ -45,6 +52,10 @@ void enqueue_message(int m_recv_id, MSG_BUF* p_msg){
 		p_msg_boxes_end[m_recv_id] = p_msg;
 	}
 	p_msg->mp_next = NULL;
+}
+
+int is_message(int receiver) {
+	return p_msg_boxes_start[receiver] != NULL;
 }
 
 MSG_BUF* find_message_from(int* sender_id){
@@ -73,10 +84,15 @@ MSG_BUF* find_message_from(int* sender_id){
 }
 
 void increment_message_buffer (FUNC_CALL type, MSG_BUF* message) {
+	int j;
 	MSG_INFO info = msg_buf[msg_buf_index];
 	info.m_sender_pid = message->m_send_pid;
 	info.m_recver_pid = message->m_recv_pid;
 	info.e_call_type = type;
+	info.m_timestamp = g_timer_count;
+	for (j = 0; j < 16; j++) {
+		info.m_text[j] = message->mtext[j];
+	}
 	msg_buf[msg_buf_index] = info;
 	msg_buf_index = (msg_buf_index + 1) % MSG_BUF_COUNT;
 }
@@ -129,27 +145,45 @@ void k_delayed_enqueue(void *p_msg) {
 
 int k_delayed_send(int pid, void *p_msg, int delay) {
 	MSG_BUF* message = (MSG_BUF*)p_msg;
-	MSG_BUF* queue = p_dely_msg_box;
-	MSG_BUF* last = NULL;
 	PCB* sending_process = gp_current_process;
 
 	__disable_irq();
 	message->m_send_pid = sending_process->m_pid;
-	message->m_recv_pid = pid;
 	message->m_kdata[0] = g_timer_count + delay;
+	message->m_kdata[1] = pid;
 	
-	while (queue != NULL && queue->m_kdata[0] <= message->m_kdata[0]) {
-		last = queue;
-		queue = queue->mp_next;
-	}
+	// Register the message with the Timer i-process
+	k_send_message(PID_TIMER_IPROC, message);
 	
-	message->mp_next = queue;
-	if (last == NULL) {
-		p_dely_msg_box = message;
-	} else {
-		last->mp_next = message;
-	}
 	increment_message_buffer(DELY_SEND, message);
 	__enable_irq();
 	return RTX_OK;
 }
+
+#if defined(DEBUG_0) &&  defined(_DEBUG_HOTKEYS)
+void print_messages(void) {
+	int i, j;
+	for (i = 0; i < MSG_BUF_COUNT; i++) {
+		MSG_INFO info = msg_buf[(i + msg_buf_index) % MSG_BUF_COUNT];
+		switch(info.e_call_type) {
+			case SEND:
+				printf("Sent message:\n\r");
+				break;
+			case RECV:
+				printf("Received message:\n\r");
+				break;
+			case DELY_SEND:
+				printf("Delayed message:\n\r");
+				break;
+		}
+		printf("\tSender: %d\n\r", info.m_sender_pid);
+		printf("\tDestination: %d\n\r", info.m_recver_pid);
+		printf("\tText: ");
+		for (j = 0; j < 16; j++) {
+			printf("%c", info.m_text[j]);
+		}
+		printf("\n\r");
+		printf("\tTimestamp: %d\n\r", info.m_timestamp);
+	}
+}
+#endif

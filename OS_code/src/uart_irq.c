@@ -235,8 +235,7 @@ void c_UART0_IRQHandler(void)
 			//case 'S':
 			//	g_switch_flag = 1;
 			//	break;
-#ifdef DEBUG_0
-#ifdef _DEBUG_HOTKEYS
+#if defined(DEBUG_0) && defined(_DEBUG_HOTKEYS)
 			case READY_Q_COMMAND:
 				if (!g_is_reading) {
 					print_ready();
@@ -252,7 +251,15 @@ void c_UART0_IRQHandler(void)
 					print_receive_blocked();
 					break;
 				}
-#endif
+			case MESSAGE_COMMAND:
+				if (!g_is_reading) {
+					print_messages();
+					break;
+				}
+			//TODO: remove this
+			case 'X':
+				printf("breaking...\n\r");
+				break;
 #endif
 			default:
 				if (g_is_reading) {

@@ -30,6 +30,7 @@ void putc(void *p, char c);     /* call back function for printf, use uart1 */
 extern void print_ready(void);
 extern void print_mem_blocked(void);
 extern void print_receive_blocked(void);
+extern void print_messages(void);
 #endif
 
 #endif /* ! UART_POLLING_H_ */

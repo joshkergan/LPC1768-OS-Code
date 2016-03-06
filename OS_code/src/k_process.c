@@ -36,6 +36,7 @@ U32 g_switch_flag = 0;          /* whether to continue to run the process before
 /* process initialization table */
 PROC_INIT g_proc_table[NUM_PROCS]; /* holds init info for system processes and all test processes */
 extern PROC_INIT g_test_procs[NUM_TEST_PROCS];
+extern uint32_t g_timer_interrupt;
 
 /**
  * @brief: set the priority of a process
@@ -109,6 +110,18 @@ int k_get_process_priority(int process_id) {
 	return RTX_ERR;
 }
 
+PCB *k_get_process(int pid) {
+	PCB *cur;
+	int i;
+	for (i = 0; i < NUM_PROCS; i++) {
+		cur = gp_pcbs[i];
+		if (cur->m_pid == pid)
+			return cur;
+	}
+	
+	return NULL;
+}
+
 /**
  * @biref: initialize all processes in the system
  * NOTE: We assume there are only two user processes in the system in this example.
@@ -148,6 +161,11 @@ void process_init()
 	g_proc_table[3].m_priority = 0;
 	g_proc_table[3].m_stack_size = 0x300;
 	g_proc_table[3].mpf_start_pc = &clock_process;
+	
+	g_proc_table[4].m_pid = PID_TIMER_IPROC;
+	g_proc_table[4].m_priority = 0;
+	g_proc_table[4].m_stack_size = 0x300;
+	g_proc_table[4].mpf_start_pc = &timer_iprocess;
 
 	/* initilize exception stack frame (i.e. initial context) for each process */
 	for ( i = 0; i < NUM_PROCS; i++) {
@@ -199,7 +217,7 @@ PCB *scheduler(void)
 	
 	if (g_released_memory) {
 		// Find first blocked process
-		process = find_first_blocked();
+		process = find_first_mem_blocked();
 		if (process) {
 			process->m_state = RDY;
 			g_num_mem_blocked--;

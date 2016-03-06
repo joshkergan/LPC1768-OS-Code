@@ -8,6 +8,7 @@
 
 #include <LPC17xx.h>
 #include "timer.h"
+#include "rtx.h"
 #ifdef DEBUG_0
 #include "printf.h"
 #endif
@@ -15,6 +16,7 @@
 #define BIT(X) (1<<X)
 
 volatile uint32_t g_timer_count = 0; // increment every 1 ms
+volatile uint32_t g_timer_interrupt = 0;
 
 /**
  * @brief: initialize timer. Only timer 0 is supported
@@ -104,25 +106,65 @@ uint32_t timer_init(uint8_t n_timer)
 __asm void TIMER0_IRQHandler(void)
 {
 	PRESERVE8
-	IMPORT c_TIMER0_IRQHandler
+	IMPORT k_release_processor
+	IMPORT c_ack_TIMER0
+	IMPORT timer_iprocess
 	PUSH{r4-r11, lr}
-	BL c_TIMER0_IRQHandler
+	BL timer_iprocess
+	//MOV R4, #1
+	//LDR R5, =__cpp(&g_timer_interrupt)
+	//STR R4, [R5]
+	//BL c_ack_TIMER0
+	BL k_release_processor
 	POP{r4-r11, pc}
 } 
+
 /**
- * @brief: c TIMER0 IRQ Handler
+ * @brief: acknowledge timer interrupt
  */
-void c_TIMER0_IRQHandler(void)
+void c_ack_TIMER0(void)
 {
 	/* ack inttrupt, see section  21.6.1 on pg 493 of LPC17XX_UM */
-	LPC_TIM0->IR = BIT(0);  
-	
-	g_timer_count++ ;
-	if(p_dely_msg_box != NULL)
-	while(p_dely_msg_box->m_kdata[0] <= g_timer_count) {
-		MSG_BUF* message = p_dely_msg_box;
-		p_dely_msg_box = p_dely_msg_box->mp_next;
-		k_delayed_enqueue(message);
-	}
+	LPC_TIM0->IR = BIT(0);
 }
 
+void timer_iprocess(void) {
+	MSG_BUF *message;
+	MSG_BUF* last = NULL;
+	PCB* p_old_proc = gp_current_process;
+	__disable_irq();
+	// Context switch
+	gp_current_process = k_get_process(PID_TIMER_IPROC);
+	/* ack inttrupt, see section  21.6.1 on pg 493 of LPC17XX_UM */
+	LPC_TIM0->IR = BIT(0);
+	g_timer_interrupt = 0;
+	g_timer_count++;
+	
+	while (is_message(PID_TIMER_IPROC)) {
+		// Add all delayed messages to the queue
+		MSG_BUF *queue = p_dely_msg_box;
+		message = k_receive_message(NULL);
+		while (queue != NULL && queue->m_kdata[0] <= message->m_kdata[0]) {
+			last = queue;
+			queue = queue->mp_next;
+		}
+		
+		message->mp_next = queue;
+		if (last == NULL) {
+			p_dely_msg_box = message;
+		} else {
+			last->mp_next = message;
+		}
+	}
+	
+	// Send all delayed messages
+	while(p_dely_msg_box && p_dely_msg_box->m_kdata[0] <= g_timer_count) {
+		MSG_BUF* message = p_dely_msg_box;
+		p_dely_msg_box = p_dely_msg_box->mp_next;
+		message->m_recv_pid = message->m_kdata[1];
+		k_delayed_enqueue(message);
+	}
+	last = NULL;
+	gp_current_process = p_old_proc;
+	__enable_irq();
+}

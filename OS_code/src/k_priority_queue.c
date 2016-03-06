@@ -1,6 +1,3 @@
-#ifndef K_PRIORITY_QUEUE_H
-#define K_PRIORITY_QUEUE_H
-
 #include "k_rtx.h"
 #ifdef DEBUG_0
 #include "printf.h"
@@ -116,6 +113,9 @@ void add_to_priority_queue(PCB *process) {
 		return;
 	
 	switch (process->m_pid) {
+		case PID_TIMER_IPROC:
+		case PID_UART_IPROC:
+			return;
 		case PID_CRT:
 		case PID_KCD:
 		case PID_CLOCK:
@@ -129,15 +129,14 @@ void add_to_priority_queue(PCB *process) {
 /**
  * @brief: find the highest priority blocked process
  */
-PCB *find_first_blocked(void) {	
+PCB *find_first_mem_blocked(void) {	
 	int i;
 	PCB* cur_proc;
 	
 	// First check system queue
 	cur_proc = g_sys_pqueue.first;
 	while (cur_proc) {
-		if (cur_proc->m_state == BLOCKED_ON_RECEIVE || 
-			cur_proc->m_state == BLOCKED_ON_MEMORY)
+		if (cur_proc->m_state == BLOCKED_ON_MEMORY)
 			return cur_proc;
 		cur_proc = cur_proc->mp_next;
 	}
@@ -146,8 +145,7 @@ PCB *find_first_blocked(void) {
 	for (i = 0; i < NUM_PRIORITIES; i++) {
 		cur_proc = gp_pqueue[i].first;
 		while (cur_proc) {
-			if (cur_proc->m_state == BLOCKED_ON_RECEIVE || 
-				cur_proc->m_state == BLOCKED_ON_MEMORY)
+			if (cur_proc->m_state == BLOCKED_ON_MEMORY)
 				return cur_proc;
 			cur_proc = cur_proc->mp_next;
 		}
@@ -201,13 +199,12 @@ void print_ready(void) {
 
 void print_mem_blocked(void) {
 	int i;
-	//printf("Memory blocked processes:\n");
+	printf("Memory blocked processes:\n");
 	for (i = 0; i < NUM_PRIORITIES; i++) {
 		PCB *cur_proc = gp_pqueue[i].first;
 		printf("priority %d: ", i);
 		while (cur_proc) {
-			if (cur_proc->m_state == BLOCKED_ON_RECEIVE || 
-				cur_proc->m_state == BLOCKED_ON_MEMORY) {
+			if (cur_proc->m_state == BLOCKED_ON_MEMORY) {
 				printf("%d,", cur_proc->m_pid);
 			}
 			
@@ -218,8 +215,20 @@ void print_mem_blocked(void) {
 }
 
 void print_receive_blocked(void) {
-	
+	int i;
+	printf("Message blocked processes:\n");
+	for (i = 0; i < NUM_PRIORITIES; i++) {
+		PCB *cur_proc = gp_pqueue[i].first;
+		printf("priority %d: ", i);
+		while (cur_proc) {
+			if (cur_proc->m_state == BLOCKED_ON_RECEIVE) {
+				printf("%d,", cur_proc->m_pid);
+			}
+			
+			cur_proc = cur_proc->mp_next;
+		}
+		printf("\n");
+	}
 }
 #endif /* _DEBUG_HOTKEYS */
 #endif /* DEBUG_0 */
-#endif /* K_PRIORITY_QUEUE_H */

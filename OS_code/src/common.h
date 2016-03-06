@@ -22,6 +22,7 @@
 #define READY_Q_COMMAND 'Q'
 #define MEMORY_Q_COMMAND 'M'
 #define RECEIVE_Q_COMMAND 'R'
+#define MESSAGE_COMMAND 'P'
 #endif
 
 /* Process IDs */

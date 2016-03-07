@@ -174,7 +174,14 @@ int uart_irq_init(int n_uart) {
 // Force the uart to output buffer
 void output_uart(void) {
 	LPC_UART_TypeDef *pUart = (LPC_UART_TypeDef *)LPC_UART0;
+	
+	// Return if it is already enabled
+	if (pUart->IER & IER_THRE)
+		return;
+	
 	pUart->IER |= IER_THRE; // enable the IER_THRE bit
+	// Force a THRE interrupt by writing a character to UART
+	pUart->THR = '\0';
 }
 
 /**
@@ -228,7 +235,8 @@ void uart_iprocess(void)
 				if (g_is_reading) {
 					// We've finished reading a command, send it to the KCD process
 					g_is_reading = 0;
-					g_in_buffer[g_in_index] = '\0';
+					strcpy("\n\r", (char *)(g_in_buffer + g_in_index));
+					//g_in_buffer[g_in_index] = '\0';
 					strcpy((char *)g_in_buffer, g_uart_message->mtext);
 					k_send_message(PID_KCD, g_uart_message);
 					g_in_index = 0;
@@ -290,12 +298,16 @@ void uart_iprocess(void)
 			message = k_receive_message((int *)sender);
 			c = message->mtext;
 
-			while (g_out_end != g_out_start && *c != '\0') {
-				g_out_buffer[g_out_end] = *c;
-				g_out_end = (g_out_end + 1) % OUTPUT_BUFF_SIZE;
-				c++;
+#ifdef DEBUG_0
+			//printf("Copying message to buffer: %s\n\r", message->mtext);
+#endif
+			if (*c != '\0') {
+				do {
+					g_out_buffer[g_out_end] = *c;
+					g_out_end = (g_out_end + 1) % OUTPUT_BUFF_SIZE;
+					c++;
+				} while (g_out_end != g_out_start && *c != '\0');
 			}
-			
 			k_release_memory_block(message);
 		}
 
@@ -307,7 +319,6 @@ void uart_iprocess(void)
 		} else {
 			// nothing to print, disable the THRE interrupt
 			pUart->IER ^= IER_THRE; // toggle (disable) the IER_THRE bit
-			g_out_end = (g_out_end + 1) % OUTPUT_BUFF_SIZE;
 		}
 
 		gp_current_process = old_proc;

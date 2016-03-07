@@ -11,7 +11,9 @@ void crt_process(void) {
 		message = receive_message(NULL);
 		//TODO: Check to make sure message has correct form
 
-		// Output message
+#ifdef DEBUG_0
+		//printf("forwarding message to UART: %s\n\r", message->mtext);
+#endif
 		send_message(PID_UART_IPROC, message);
 
 		// Enable output interrupts

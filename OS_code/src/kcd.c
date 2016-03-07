@@ -64,6 +64,7 @@ void kcd_process(void) {
 					// If we have a registered handler, send it a copy of the message
 					new_message = request_memory_block();
 					*new_message = *message;
+					strcpy(message->mtext, new_message->mtext);
 					send_message(pid, (void*)new_message);
 				}
 				send_message(PID_CRT, message);

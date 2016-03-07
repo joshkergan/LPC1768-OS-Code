@@ -168,7 +168,7 @@ PCB * find_first_ready(void) {
 	// Check user queues
 	for (i = 0; i < NUM_PRIORITIES; i++) {
 		PCB *cur_proc = gp_pqueue[i].first;
-		while (cur_proc) {
+		while (cur_proc != NULL) {
 			if (cur_proc->m_state == RDY || cur_proc->m_state == NEW)
 				return cur_proc;
 			cur_proc = cur_proc->mp_next;

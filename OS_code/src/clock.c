@@ -32,20 +32,22 @@ static void print_time(uint32_t time) {
 	print_2digit(hours, message->mtext);
 	print_2digit(minutes, message->mtext + 3);
 	print_2digit(seconds, message->mtext + 6);
-	
-	printf("sending to CRT: %s", message->mtext);
+
 	send_message(PID_CRT, message);
 }
 
 static int is_valid_time(char *buff) {
-	if (!is_digit(buff[0]) &&
-			is_digit(buff[1]) &&
-			':' == buff[2] &&
-			is_digit(buff[3]) &&
-			is_digit(buff[4]) &&
-			':' == buff[5] &&
-			is_digit(buff[6]) &&
-			is_digit(buff[7]))
+#ifdef DEBUG_0
+	printf("Validating time: %s\n\r", buff);
+#endif
+	if (!(is_digit(buff[0]) &&
+				is_digit(buff[1]) &&
+				':' == buff[2] &&
+				is_digit(buff[3]) &&
+				is_digit(buff[4]) &&
+				':' == buff[5] &&
+				is_digit(buff[6]) &&
+				is_digit(buff[7])))
 		return 0;
 	
 	if (read_2digit(buff) >= 24)
@@ -57,6 +59,9 @@ static int is_valid_time(char *buff) {
 	if (read_2digit(buff + 6) >= 60)
 		return 0;
 	
+#ifdef DEBUG_0
+	printf("Valid time!\n\r");
+#endif
 	return 1;
 }
 
@@ -74,14 +79,14 @@ void clock_process(void) {
 	send_message(PID_KCD, message);
 	
 	message = request_memory_block();
-	delayed_send(PID_CLOCK, message, 100);
+	delayed_send(PID_CLOCK, message, 20);
 	
 	while (is_running) {
 		message = receive_message(NULL);
 		if (message->m_send_pid == PID_CLOCK) {
 			time++;
 			print_time(time);
-			delayed_send(PID_CLOCK, message, 100);
+			delayed_send(PID_CLOCK, message, 20);
 		} else if (message->mtext[0] == '%' && message->mtext[1] == 'W') {
 			switch(message->mtext[2]) {
 				case 'R':
@@ -90,13 +95,15 @@ void clock_process(void) {
 					break;
 				case 'S':
 					// Set
-				printf("set time: %s\n\r", message->mtext);
 					if (!is_valid_time(message->mtext + 4))
 						break;
 					
 					hours = read_2digit(message->mtext + 4);
 					minutes = read_2digit(message->mtext + 7);
 					seconds = read_2digit(message->mtext + 10);
+					
+					printf("Updating time: hours=%d, minutes=%d, seconds=%d\n\r",
+						hours, minutes, seconds);
 					
 					time = hours * 60 * 60 + minutes * 60 + seconds;
 					break;
@@ -115,4 +122,6 @@ void clock_process(void) {
 	
 	if (message)
 		release_memory_block(message);
+	
+	terminate_sys_proc();
 }

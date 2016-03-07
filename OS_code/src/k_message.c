@@ -38,8 +38,6 @@ void unblock_receiver (int m_pid) {
 	
 	if (cur_program->m_state == BLOCKED_ON_RECEIVE) {
 		cur_program->m_state = RDY;
-		__enable_irq();
-		k_release_processor();
 	}
 }
 

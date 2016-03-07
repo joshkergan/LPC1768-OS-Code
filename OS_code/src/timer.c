@@ -114,7 +114,7 @@ __asm void TIMER0_IRQHandler(void)
 	//LDR R5, =__cpp(&g_timer_interrupt)
 	//STR R4, [R5]
 	//BL c_ack_TIMER0
-	BL k_release_processor
+	//BL k_release_processor
 	POP{r4-r11, pc}
 }
 

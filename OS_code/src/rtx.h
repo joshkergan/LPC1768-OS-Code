@@ -30,6 +30,11 @@ extern int k_set_process_priority(int pid, int prio);
 #define set_process_priority(pid, prio) _set_process_priority((U32)k_set_process_priority, pid, prio)
 extern int _set_process_priority(U32 p_func, int pid, int prio) __SVC_0;
 
+/* Process Management */
+extern void k_terminate_sys_proc(void);
+#define terminate_sys_proc() _terminate_sys_proc((U32) k_terminate_sys_proc)
+extern void __SVC_0 _terminate_sys_proc(U32 p_func);
+
 /* Memeory Management */
 extern void *k_request_memory_block(void);
 #define request_memory_block() _request_memory_block((U32)k_request_memory_block)

@@ -145,17 +145,17 @@ void process_init()
 	
 	g_proc_table[1].m_pid = PID_KCD;
 	g_proc_table[1].m_priority = 0;
-	g_proc_table[1].m_stack_size = 0x300;
+	g_proc_table[1].m_stack_size = 0x400;
 	g_proc_table[1].mpf_start_pc = &kcd_process;
 	
 	g_proc_table[2].m_pid = PID_CRT;
 	g_proc_table[2].m_priority = 0;
-	g_proc_table[2].m_stack_size = 0x300;
+	g_proc_table[2].m_stack_size = 0x400;
 	g_proc_table[2].mpf_start_pc = &crt_process;
 	
 	g_proc_table[3].m_pid = PID_CLOCK;
 	g_proc_table[3].m_priority = 0;
-	g_proc_table[3].m_stack_size = 0x300;
+	g_proc_table[3].m_stack_size = 0x400;
 	g_proc_table[3].mpf_start_pc = &clock_process;
 	
 	// Set initialization values for the i-processes
@@ -226,8 +226,10 @@ PCB *scheduler(void)
 			process->mp_assigned_mem = (void*)gp_free_space;
 			gp_free_space = gp_free_space->next;
 			g_released_memory = 0;
-			if(process->m_priority < gp_current_process->m_priority)
+			if(process->m_priority < gp_current_process->m_priority) {
+				process = remove_by_PID(process->m_pid);
 				return process;
+			}
 			else
 				return gp_current_process;
 		}
@@ -250,6 +252,18 @@ PCB *scheduler(void)
 	// Currently running process has the highest priority
 	// continue to run it
 	return gp_current_process;
+}
+
+void k_terminate_sys_proc(void) {
+	__disable_irq();
+	if (gp_current_process->m_pid != PID_CLOCK &&
+			gp_current_process->m_pid != PID_KCD &&
+			gp_current_process->m_pid != PID_CRT)
+		return;
+	
+	gp_current_process->m_state = EXIT;
+	__enable_irq();
+	k_release_processor();
 }
 
 /**
@@ -328,7 +342,7 @@ int k_release_processor(void)
 	if ( p_pcb_old == NULL ) {
 		// set the old process correctly if it hasn't been set before
 		p_pcb_old = gp_current_process;
-	} else {
+	} else if (p_pcb_old->m_state != EXIT) {
 		// Add the old process back into the queue
 		add_to_priority_queue(p_pcb_old);
 	}

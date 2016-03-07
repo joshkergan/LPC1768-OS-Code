@@ -38,6 +38,7 @@ extern void set_test_procs(void);      /* test process initial set up */
 
 // System processes
 extern void timer_iprocess(void);
+extern void uart_iprocess(void);
 extern void k_null_process(void);			 /* the null process */
 extern void kcd_process(void);
 extern void crt_process(void);

@@ -8,29 +8,38 @@
 #include <LPC17xx.h>
 #include "uart.h"
 #include "uart_polling.h"
-#include "common.h"
+#include "k_rtx.h"
 #include "string.h"
 #ifdef DEBUG_0
 #include "printf.h"
 #endif
 
+#define OUTPUT_BUFF_SIZE 40
 
-uint8_t g_buffer[]= "You Typed a Q\n\r";
 uint8_t g_in_buffer[40];
 uint32_t g_in_index = 0;
+
+uint8_t g_out_buffer[OUTPUT_BUFF_SIZE];
+uint32_t g_out_start = 0;
+uint32_t g_out_end = 1;
+
 uint8_t g_is_reading = 0;
 
 uint8_t message_container[128 / sizeof(uint8_t)];
 MSG_BUF *g_uart_message = (MSG_BUF *)message_container;
-uint8_t *gp_buffer = g_buffer;
-uint8_t g_send_char = 0;
+
 uint8_t g_char_in;
 uint8_t g_char_out;
 
-extern uint32_t g_switch_flag;
-
 extern int k_release_processor(void);
+extern int k_release_memory_block(void *p_mem_blk);
 extern int k_send_message(int pid, void *p_msg);
+extern void* k_receive_message(int *sender_id);
+extern int is_message(int receiver);
+extern PCB* k_get_process(int pid);
+
+extern PCB *gp_current_process;
+
 /**
  * @brief: initialize the n_uart
  * NOTES: It only supports UART0. It can be easily extended to support UART1 IRQ.
@@ -162,6 +171,11 @@ int uart_irq_init(int n_uart) {
 	return 0;
 }
 
+// Force the uart to output buffer
+void output_uart(void) {
+	LPC_UART_TypeDef *pUart = (LPC_UART_TypeDef *)LPC_UART0;
+	pUart->IER |= IER_THRE; // enable the IER_THRE bit
+}
 
 /**
  * @brief: use CMSIS ISR for UART0 IRQ Handler
@@ -173,68 +187,61 @@ int uart_irq_init(int n_uart) {
 __asm void UART0_IRQHandler(void)
 {
 	PRESERVE8
-	IMPORT c_UART0_IRQHandler
-	IMPORT k_release_processor
+	IMPORT uart_iprocess
 	PUSH{r4-r11, lr}
-	BL c_UART0_IRQHandler
-	LDR R4, =__cpp(&g_switch_flag)
-	LDR R4, [R4]
-	MOV R5, #0     
-	CMP R4, R5
-	BEQ  RESTORE    ; if g_switch_flag == 0, then restore the process that was interrupted
-	BL k_release_processor  ; otherwise (i.e g_switch_flag == 1, then switch to the other process)
-RESTORE
+	BL uart_iprocess
 	POP{r4-r11, pc}
 } 
 /**
  * @brief: c UART0 IRQ Handler
  */
-void c_UART0_IRQHandler(void)
+void uart_iprocess(void)
 {
 	uint8_t IIR_IntId;	    // Interrupt ID from IIR 		 
 	LPC_UART_TypeDef *pUart = (LPC_UART_TypeDef *)LPC_UART0;
 	
 #ifdef DEBUG_0
-	uart1_put_string("Entering c_UART0_IRQHandler\n\r");
+	//uart1_put_string("Entering c_UART0_IRQHandler\n\r");
 #endif // DEBUG_0
 
 	/* Reading IIR automatically acknowledges the interrupt */
 	IIR_IntId = (pUart->IIR) >> 1 ; // skip pending bit in IIR 
 	if (IIR_IntId & IIR_RDA) { // Receive Data Avaialbe
 		/* read UART. Read RBR will clear the interrupt */
+
+		// Perform a 'context switch'
+		PCB *old_proc = gp_current_process;
+		gp_current_process = k_get_process(PID_UART_IPROC);
 		g_char_in = pUart->RBR;
+
 #ifdef DEBUG_0
 		uart1_put_string("Reading a char = ");
 		uart1_put_char(g_char_in);
 		uart1_put_string("\n\r");
 #endif // DEBUG_0
-		g_buffer[12] = g_char_in; // nasty hack
-		g_send_char = 1;
 
-		/* setting the g_switch_flag */
+		// process the character. If it is a hotkey, call the corresponding function
+		// If we are reading, fall through to default and add to the command buffer
 		switch (g_char_in) {
 			case '\r':
 			case '\n':
 				if (g_is_reading) {
+					// We've finished reading a command, send it to the KCD process
 					g_is_reading = 0;
 					g_in_buffer[g_in_index] = '\0';
-					// do something
-					//printf("received message: %s\n\r", g_in_buffer);
-				  strcpy((char *)g_in_buffer, g_uart_message->mtext);
+					strcpy((char *)g_in_buffer, g_uart_message->mtext);
 					k_send_message(PID_KCD, g_uart_message);
 					g_in_index = 0;
 				}
 				break;
 			case '%':
 				if (!g_is_reading) {
+					// Start reading a command
 					g_is_reading = 1;
 					g_in_index = 1;
 					g_in_buffer[0] = '%';
 					break;
 				}
-			//case 'S':
-			//	g_switch_flag = 1;
-			//	break;
 #if defined(DEBUG_0) && defined(_DEBUG_HOTKEYS)
 			case READY_Q_COMMAND:
 				if (!g_is_reading) {
@@ -256,40 +263,54 @@ void c_UART0_IRQHandler(void)
 					print_messages();
 					break;
 				}
-			//TODO: remove this
-			case 'X':
-				printf("breaking...\n\r");
-				break;
-#endif
+#endif /* DEBUG HOTKEYS */
 			default:
 				if (g_is_reading) {
+					// TODO: check bounds
 					g_in_buffer[g_in_index++] = g_char_in;
 				}
 		}
+
+		gp_current_process = old_proc;
 	} else if (IIR_IntId & IIR_THRE) {
 	/* THRE Interrupt, transmit holding register becomes empty */
+		// Check for messages and load the buffer
 
-		if (*gp_buffer != '\0' ) {
-			g_char_out = *gp_buffer;
-#ifdef DEBUG_0
-			//uart1_put_string("Writing a char = ");
-			//uart1_put_char(g_char_out);
-			//uart1_put_string("\n\r");
+		// Perform a 'context switch' to the i-process
+		MSG_BUF *message;
+		PCB *old_proc = gp_current_process;
+		gp_current_process = k_get_process(PID_UART_IPROC);
+
+		// Don't block waiting for a message
+		while (is_message(PID_UART_IPROC)) {
+			int sender = PID_CRT;
+			char *c;
+
+			// Receive message and copy it to the buffer
+			message = k_receive_message((int *)sender);
+			c = message->mtext;
+
+			while (g_out_end != g_out_start && *c != '\0') {
+				g_out_buffer[g_out_end] = *c;
+				g_out_end = (g_out_end + 1) % OUTPUT_BUFF_SIZE;
+				c++;
+			}
 			
-			// you could use the printf instead
-			printf("Writing a char = %c \n\r", g_char_out);
-#endif // DEBUG_0			
-			pUart->THR = g_char_out;
-			gp_buffer++;
-		} else {
-#ifdef DEBUG_0
-			uart1_put_string("Finish writing. Turning off IER_THRE\n\r");
-#endif // DEBUG_0
-			pUart->IER ^= IER_THRE; // toggle the IER_THRE bit 
-			pUart->THR = '\0';
-			g_send_char = 0;
-			gp_buffer = g_buffer;		
+			k_release_memory_block(message);
 		}
+
+		// Check if there is something in the circular buffer
+		if (g_out_start != g_out_end) {
+			g_char_out = g_out_buffer[g_out_start];
+			pUart->THR = g_char_out;
+			g_out_start = (g_out_start + 1) % OUTPUT_BUFF_SIZE;
+		} else {
+			// nothing to print, disable the THRE interrupt
+			pUart->IER ^= IER_THRE; // toggle (disable) the IER_THRE bit
+			g_out_end = (g_out_end + 1) % OUTPUT_BUFF_SIZE;
+		}
+
+		gp_current_process = old_proc;
 	      
 	} else {  /* not implemented yet */
 #ifdef DEBUG_0

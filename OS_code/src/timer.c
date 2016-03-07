@@ -107,7 +107,6 @@ __asm void TIMER0_IRQHandler(void)
 {
 	PRESERVE8
 	IMPORT k_release_processor
-	IMPORT c_ack_TIMER0
 	IMPORT timer_iprocess
 	PUSH{r4-r11, lr}
 	BL timer_iprocess
@@ -117,15 +116,6 @@ __asm void TIMER0_IRQHandler(void)
 	//BL c_ack_TIMER0
 	BL k_release_processor
 	POP{r4-r11, pc}
-} 
-
-/**
- * @brief: acknowledge timer interrupt
- */
-void c_ack_TIMER0(void)
-{
-	/* ack inttrupt, see section  21.6.1 on pg 493 of LPC17XX_UM */
-	LPC_TIM0->IR = BIT(0);
 }
 
 void timer_iprocess(void) {

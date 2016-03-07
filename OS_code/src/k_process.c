@@ -29,10 +29,6 @@ PCB *gp_current_process = NULL; /* always point to the current RUN process */
 U32 g_num_mem_blocked = 0;					/* the number of memory blocked processes */
 U32 g_released_memory = 0;
 
-U32 g_switch_flag = 0;          /* whether to continue to run the process before the UART receive interrupt */
-                                /* 1 means to switch to another process, 0 means to continue the current process */
-				/* this value will be set by UART handler */
-
 /* process initialization table */
 PROC_INIT g_proc_table[NUM_PROCS]; /* holds init info for system processes and all test processes */
 extern PROC_INIT g_test_procs[NUM_TEST_PROCS];
@@ -141,7 +137,7 @@ void process_init()
 		g_proc_table[i + NUM_SYSTEM_PROCS].mpf_start_pc = g_test_procs[i].mpf_start_pc;
 	}
 	
-	// Set initilization values for the system processes
+	// Set initialization values for the system processes
 	g_proc_table[0].m_pid = PID_NULL;
 	g_proc_table[0].m_priority = 4;
 	g_proc_table[0].m_stack_size = 0x300;
@@ -162,12 +158,18 @@ void process_init()
 	g_proc_table[3].m_stack_size = 0x300;
 	g_proc_table[3].mpf_start_pc = &clock_process;
 	
+	// Set initialization values for the i-processes
 	g_proc_table[4].m_pid = PID_TIMER_IPROC;
 	g_proc_table[4].m_priority = 0;
 	g_proc_table[4].m_stack_size = 0x300;
 	g_proc_table[4].mpf_start_pc = &timer_iprocess;
 
-	/* initilize exception stack frame (i.e. initial context) for each process */
+	g_proc_table[5].m_pid = PID_UART_IPROC;
+	g_proc_table[5].m_priority = 0;
+	g_proc_table[5].m_stack_size = 0x300;
+	g_proc_table[5].mpf_start_pc = &uart_iprocess;
+
+	/* initialize exception stack frame (i.e. initial context) for each process */
 	for ( i = 0; i < NUM_PROCS; i++) {
 		int j;
 		(gp_pcbs[i])->m_pid = (g_proc_table[i]).m_pid;

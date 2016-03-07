@@ -2,6 +2,7 @@
 #include "printf.h"
 
 extern int uart_put_string(int, unsigned char *);
+extern void output_uart(void);
 
 void crt_process(void) {
 	MSG_BUF *message;
@@ -11,7 +12,9 @@ void crt_process(void) {
 		//TODO: Check to make sure message has correct form
 
 		// Output message
-		uart_put_string(1, (unsigned char *)message->mtext);
-		release_memory_block(message);
+		send_message(PID_UART_IPROC, message);
+
+		// Enable output interrupts
+		output_uart();
 	}
 }

@@ -12,6 +12,7 @@ extern volatile uint32_t g_timer_count;
 extern PCB *gp_current_process;
 extern PCB ** gp_pcbs;
 extern int k_release_processor(void);
+extern PCB* k_get_process(int m_pid);
 
 typedef enum {SEND = 0, RECV, DELY_SEND} FUNC_CALL;  
 typedef struct message_info {
@@ -113,6 +114,14 @@ int k_send_message(int process_id, void *message_envelope){
 	
 	increment_message_buffer(SEND, message);
 
+	// Preempt non-system processs
+	if(sending_process->m_pid < PID_CLOCK) {
+		PCB* receiving_process = k_get_process(process_id);
+		if(sending_process->m_priority > receiving_process->m_priority) {
+			k_release_processor();
+		}
+	}
+	
 	__enable_irq();
 	return RTX_OK;
 }

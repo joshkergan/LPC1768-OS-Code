@@ -206,7 +206,7 @@ void uart_iprocess(void)
 {
 	uint8_t IIR_IntId;	    // Interrupt ID from IIR 		 
 	LPC_UART_TypeDef *pUart = (LPC_UART_TypeDef *)LPC_UART0;
-	
+	__disable_irq();
 #ifdef DEBUG_0
 	//uart1_put_string("Entering c_UART0_IRQHandler\n\r");
 #endif // DEBUG_0
@@ -327,6 +327,8 @@ void uart_iprocess(void)
 #ifdef DEBUG_0
 			uart1_put_string("Should not get here!\n\r");
 #endif // DEBUG_0
+		__enable_irq();
 		return;
 	}	
+	__enable_irq();
 }

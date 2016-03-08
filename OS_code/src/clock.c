@@ -79,14 +79,14 @@ void clock_process(void) {
 	send_message(PID_KCD, message);
 	
 	message = request_memory_block();
-	delayed_send(PID_CLOCK, message, 20);
+	delayed_send(PID_CLOCK, message, 1000);
 	
 	while (is_running) {
 		message = receive_message(NULL);
 		if (message->m_send_pid == PID_CLOCK) {
 			time++;
 			print_time(time);
-			delayed_send(PID_CLOCK, message, 20);
+			delayed_send(PID_CLOCK, message, 1000);
 		} else if (message->mtext[0] == '%' && message->mtext[1] == 'W') {
 			switch(message->mtext[2]) {
 				case 'R':

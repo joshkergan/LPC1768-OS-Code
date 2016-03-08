@@ -10,9 +10,11 @@
 /* initialization table item */
 PROC_INIT g_test_procs[NUM_TEST_PROCS];
 
+int num_tests = 7;
 int tests_passed = 0;
-int tests_failed = 0;
 int blockedOnMem = 0;
+int prempt = 0;
+void *blocks[30] = {NULL};
 
 void test_pass(unsigned char test_num) {
 	unsigned char test_string[] = "G016_Test: test n OK\n\r";
@@ -25,7 +27,6 @@ void test_fail(unsigned char test_num) {
 	unsigned char test_string[] = "G016_Test: test m FAIL\n\r";
 	test_string[16] = test_num;
 	uart0_put_string(test_string);
-	tests_failed++;
 }
 
 void set_test_procs() {
@@ -55,13 +56,23 @@ void set_test_procs() {
 }
 
 void test_processes(void) {
+	unsigned char s_tests_passed[] = "G016_test: x/N tests OK\n\r";
+	unsigned char s_tests_failed[] = "G016_test: y/N tests FAIL\n\r";
+	unsigned char* s_end = "G016_test: END\n\r";
 	
+	s_tests_passed[11] = (char)(tests_passed + '0');
+	s_tests_failed[11] = (char)((num_tests - tests_passed) + '0');
+	s_tests_passed[13] = (char)(num_tests + '0');
+	s_tests_failed[13] = (char)(num_tests + '0');
+	
+	uart0_put_string(s_tests_passed);
+	uart0_put_string(s_tests_failed);
+	uart0_put_string(s_end);
 }
 
 
 /**
- * @brief: a process that prints five uppercase letters
- *         and request a memory block.
+ * @brief: Process that tests request and release memory in two blocks
  */
 void proc1(void)
 {
@@ -90,26 +101,21 @@ void proc1(void)
 	} else {
 		test_fail('2');
 	}
+	// Switch tests
+	set_process_priority(PID_P3, MEDIUM);
+	set_process_priority(PID_P2, HIGH);
+	set_process_priority(PID_P1, LOW);
 	while(1) {
 		release_processor();
 	}
-	set_process_priority(PID_P3, MEDIUM);
-	set_process_priority(PID_P6, HIGH);
-	//set_process_priority(PID_P2, HIGH);
-	set_process_priority(PID_P1, LOW);
 }
 
 /**
- * @brief: a process that prints five numbers
- *         and then releases a memory block
+ * @brief: sets get and set process priority
  */
 void proc2(void)
 {
-	int i = 0;
-	int ret_val = 20;
 	int priority;
-	void *p_mem_blk;
-	void *blocks[30];
 	blockedOnMem = 0;
 	
 #ifdef DEBUG_0
@@ -127,34 +133,10 @@ void proc2(void)
 	else{
 		test_fail('3');
 	}
-	
-	while (1) {
-		if ( i != 0 && i%5 == 0 ) {
-			uart0_put_string("\n\r");
-#ifdef DEBUG_0
-			//printf("proc2: ret_val=%d\n", ret_val);
-#endif /* DEBUG_0 */
-			if ( ret_val == -1 ) {
-				break;
-			}
-		}		
-		blockedOnMem = 1;
-		for(i=0; blockedOnMem; i++){
-			//requesting memory until it's out
-			//printf("requesting mem \n\r");
-			printf("requesting mem %d\n\r", i);
-			blocks[i]=request_memory_block();
-		}
-		
-		for(i=0;i<28;i++){
-			release_memory_block(blocks[i]);
-			printf("releasing mem %d\n\r", i);
-		}
-		
-	}
-	uart0_put_string("proc2: end of testing\n\r");
-	set_process_priority(PID_P2, LOWEST);
-	set_process_priority(PID_P4, HIGH);
+			
+	prempt = 1;
+	set_process_priority(PID_P6, HIGH);
+	set_process_priority(PID_P2, LOW);
 	while ( 1 ) {
 		release_processor();
 	}
@@ -162,43 +144,33 @@ void proc2(void)
 
 void proc3(void)
 {
-	void *p_mem_blks[30];
+	MSG_BUF* message;
 	
-#ifdef DEBUG_0
-			printf("proc3: starting...\n");
-#endif
+	message = (MSG_BUF*)receive_message((int*)PID_P5);
+	
+	if(prempt)
+		test_pass('7');
+	else 
+		test_fail('7');
+	release_memory_block((void*)message);
 	set_process_priority(PID_P3, LOW);
-#ifdef DEBUG_0
-	printf("proc3: done\n");
-#endif
 	while(1)
 		release_processor();
 }
 
 void proc4(void)
 {
-	void *p_mem_blk;
 	MSG_BUF *message;
-	int send;
-	blockedOnMem = 0;
-#ifdef DEBUG_0
-			printf("proc4: starting...\n");
-#endif
-	message = request_memory_block();
-	strcpy("abc", message->mtext);
-	send = send_message(PID_P5, message);
 	
-	if(send==RTX_OK){
-		test_pass('5');
-	}
-	else{
-		test_fail('5');
+	message = (MSG_BUF*) receive_message((int*)PID_P5);
+
+	if (strcmp(message->mtext, "Correct!") == 0) {
+		test_pass('6');
+	} else {
+		test_fail('6');
 	}
 	
-	
-#ifdef DEBUG_0
-			printf("proc4: finished\n");
-#endif
+	set_process_priority(PID_P4, LOW);
 	
 	while(1)
 		release_processor();
@@ -206,47 +178,65 @@ void proc4(void)
 void proc5(void)
 {
 	int i=0;
-	blockedOnMem = 0;
-#ifdef DEBUG_0
-			printf("proc5: starting...\n");
-#endif
+	MSG_BUF* message;
+	blockedOnMem = 1;
 	
-	while(1) {
-		if ( i < 2 )  {
-			uart0_put_string("proc5: \n\r");
-		}
-		release_processor();
+	while(blocks[i]) {
+		release_memory_block(blocks[i]);
 		i++;
+	}
+	release_processor();
+	if(!prempt) {
+		test_fail('5');
+	}
+	
+	set_process_priority(PID_P4, HIGH);
+	set_process_priority(PID_P3, HIGH);
+	
+	message = (MSG_BUF*) request_memory_block();
+	
+	message->mtype = DEFAULT;
+	strcpy("Correct!", message->mtext);
+	
+	send_message(PID_P4, (void*)message);
+	
+	prempt = 0;
+	set_process_priority(PID_P3, HIGH);
+	set_process_priority(PID_P5, MEDIUM);
+	
+	prempt = 1;
+	send_message(PID_P3, message);
+	prempt = 0;
+	
+	set_process_priority(PID_P5, LOW);
+	test_processes();
+	while(1) {
+		release_processor();
 	}
 }
+
+/**
+ * @brief: tests premption and blocks on memory
+ */
 void proc6(void)
 {
-	int i=0;
-	void* memBlock;
-	
-	blockedOnMem = 0;
-#ifdef DEBUG_0
-			printf("proc6: starting...\n");
-#endif
-	memBlock = request_memory_block();
-	set_process_priority(PID_P2, HIGH);
-	set_process_priority(PID_P6, LOW);
-	release_processor();
-	if(blockedOnMem){
-		//this should be the next process running after blocking 2
+	int i = 0;
+	if (prempt == 1) {
 		test_pass('4');
-	}
-	else{
+	} else {
 		test_fail('4');
 	}
-	release_memory_block(memBlock);
-	
-	
-	while(1) {
-		if ( i < 2 )  {
-			uart0_put_string("proc6: \n\r");
-		}
-		release_processor();
+	prempt = 0;
+	set_process_priority(PID_P5, HIGH);
+	while(!blockedOnMem) {
+		blocks[i] = request_memory_block();
 		i++;
 	}
+	prempt = 1;
+	if(blockedOnMem) {
+		test_pass('5');
+	}
+	set_process_priority(PID_P6, LOW);
+	while (1)
+		release_processor();
 }

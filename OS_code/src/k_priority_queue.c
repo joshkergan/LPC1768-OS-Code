@@ -6,6 +6,11 @@
 QUEUE *gp_pqueue;	/* array of queues */
 QUEUE g_sys_pqueue;	/* queue for system processes */
 
+void init_sys_queue(void) {
+	g_sys_pqueue.first = NULL;
+	g_sys_pqueue.last = NULL;
+}
+
 /**
  * @brief: add a PCB to the back of the queue
  */
@@ -80,8 +85,12 @@ PCB * remove_by_PID(int process_id) {
 	// Check user queues
 	for (priority = 0; priority < NUM_PRIORITIES; priority++) {
 		q = &gp_pqueue[priority];
+		if(!q->first) {
+			continue;
+		}
 		if (q->first->m_pid == process_id)
 			return dequeue(q);
+		
 		
 		prev = q->first;
 		cur = prev->mp_next;

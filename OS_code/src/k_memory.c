@@ -69,6 +69,10 @@ void memory_init(void)
 	/* allocate memory for priority array */
 	gp_pqueue = (QUEUE *)p_end;
 	p_end += NUM_PRIORITIES * sizeof(QUEUE);
+	for(i = 0; i < NUM_PRIORITIES; i++) {
+		gp_pqueue[i].first = NULL;
+		gp_pqueue[i].last = NULL;
+	}
 	
 	/* allocate memory for PCBs */
 	for ( i = 0; i < NUM_PROCS; i++ ) {

@@ -20,6 +20,7 @@ void k_rtx_init(void)
 	uart_irq_init(0);   // uart0, interrupt-driven 
 	uart1_init();       // uart1, polling
 	memory_init();
+	init_sys_queue();
 	process_init();
 	__enable_irq();
 	

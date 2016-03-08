@@ -108,13 +108,16 @@ __asm void TIMER0_IRQHandler(void)
 	PRESERVE8
 	IMPORT k_release_processor
 	IMPORT timer_iprocess
+	IMPORT gm_new_messages
 	PUSH{r4-r11, lr}
 	BL timer_iprocess
-	//MOV R4, #1
-	//LDR R5, =__cpp(&g_timer_interrupt)
-	//STR R4, [R5]
-	//BL c_ack_TIMER0
-	//BL k_release_processor
+	LDR r4, =__cpp(&gm_new_messages);
+	LDR r4, [r4]
+	MOV r5, #0
+	CMP r4, r5
+	BEQ RESTORE
+	BL k_release_processor
+RESTORE
 	POP{r4-r11, pc}
 }
 
@@ -153,8 +156,9 @@ void timer_iprocess(void) {
 		p_dely_msg_box = p_dely_msg_box->mp_next;
 		message->m_recv_pid = message->m_kdata[1];
 		k_delayed_enqueue(message);
+		gm_new_messages = 1;
 	}
 	last = NULL;
 	gp_current_process = p_old_proc;
-	__enable_irq();
+		__enable_irq();
 }

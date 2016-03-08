@@ -1,7 +1,8 @@
 #include "kcd.h"
 
-//TODO: delete
+#ifdef DEBUG_0
 #include "printf.h"
+#endif
 
 #include "string.h"
 
@@ -59,15 +60,17 @@ void kcd_process(void) {
 				break;
 			case DEFAULT:
 				// From UART i-process
-				pid = get_kcd_handler(message->mtext);
-				if (pid != -1) {
-					// If we have a registered handler, send it a copy of the message
-					new_message = request_memory_block();
-					*new_message = *message;
-					strcpy(message->mtext, new_message->mtext);
-					send_message(pid, (void*)new_message);
+				if (message->m_send_pid == PID_UART_IPROC) {
+					pid = get_kcd_handler(message->mtext);
+					if (pid != -1) {
+						// If we have a registered handler, send it a copy of the message
+						new_message = request_memory_block();
+						*new_message = *message;
+						strcpy(message->mtext, new_message->mtext);
+						send_message(pid, (void*)new_message);
+					}
+					send_message(PID_CRT, message);
 				}
-				send_message(PID_CRT, message);
 				break;
 		}
 	}

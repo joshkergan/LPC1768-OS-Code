@@ -154,7 +154,9 @@ void timer_iprocess(void) {
 	while(p_dely_msg_box && p_dely_msg_box->m_kdata[0] <= g_timer_count) {
 		MSG_BUF* message = p_dely_msg_box;
 		p_dely_msg_box = p_dely_msg_box->mp_next;
-		message->m_recv_pid = message->m_kdata[1];
+		if(message->m_recv_pid == PID_TIMER_IPROC) {
+			message->m_recv_pid = message->m_kdata[1];
+		}
 		k_delayed_enqueue(message);
 		gm_new_messages = 1;
 	}

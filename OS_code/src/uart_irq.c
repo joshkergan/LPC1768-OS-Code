@@ -295,12 +295,11 @@ void uart_iprocess(void)
 			char *c;
 
 			// Receive message and copy it to the buffer
-			message = k_receive_message((int *)sender);
+			message = k_receive_message(&sender);
 			c = message->mtext;
 
-#ifdef DEBUG_0
-			//printf("Copying message to buffer: %s\n\r", message->mtext);
-#endif
+			//dprintf("Copying message to buffer: %s\n\r", message->mtext);
+
 			if (*c != '\0') {
 				do {
 					g_out_buffer[g_out_end] = *c;
@@ -325,7 +324,7 @@ void uart_iprocess(void)
 	      
 	} else {  /* not implemented yet */
 #ifdef DEBUG_0
-			uart1_put_string("Should not get here!\n\r");
+			//uart1_put_string("Should not get here!\n\r");
 #endif // DEBUG_0
 		__enable_irq();
 		return;

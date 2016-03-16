@@ -49,27 +49,31 @@ void kcd_process(void) {
 	MSG_BUF *new_message;
 	int pid;
 	while (1) {
+		int sender;
 		// Block until next message
-		message = receive_message(NULL);
+		message = receive_message(&sender);
 		//TODO: Check to make sure message has correct form
 		switch (message->mtype) {
 			case KCD_REG:
 				// Register a new command
-				add_kcd_command(message->mtext, message->m_send_pid);
+				add_kcd_command(message->mtext, sender);
 				release_memory_block(message);
 				break;
-			case DEFAULT:
+			default:
 				// From UART i-process
-				if (message->m_send_pid == PID_UART_IPROC) {
+				if (sender == PID_UART_IPROC) {
 					pid = get_kcd_handler(message->mtext);
 					if (pid != -1) {
 						// If we have a registered handler, send it a copy of the message
 						new_message = request_memory_block();
-						*new_message = *message;
 						strcpy(message->mtext, new_message->mtext);
 						send_message(pid, (void*)new_message);
 					}
-					send_message(PID_CRT, message);
+					// The message we receive from the UART i-process is static,
+					// we NEVER want to release it. Just send a copy
+					new_message = request_memory_block();
+					strcpy(message->mtext, new_message->mtext);
+					send_message(PID_CRT, new_message);
 				}
 				break;
 		}

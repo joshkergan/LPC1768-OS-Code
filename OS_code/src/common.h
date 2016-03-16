@@ -9,14 +9,15 @@
 
 /* Definitions */
 
-#define BOOL unsigned char
+//#define BOOL unsigned char
 
 #define TRUE 1
 #define FALSE 0
 #define NULL 0
 #define RTX_ERR -1
 #define RTX_OK 0
-#define NUM_TEST_PROCS 6
+#define NUM_TEST_PROCS 		6
+#define NUM_STRESS_PROCS	3
 
 #ifdef _DEBUG_HOTKEYS
 #define READY_Q_COMMAND 'Q'
@@ -43,6 +44,8 @@
 #define PID_TIMER_IPROC  14
 #define PID_UART_IPROC   15
 
+#define is_system_proc(pid) (pid >= PID_SET_PRIO)
+
 
 /* Process Priority. The bigger the number is, the lower the priority is*/
 #define HIGH    0
@@ -55,15 +58,20 @@
 #define KCD_REG 1
 #define CRT_DISPLAY 2
 
+/* User stack config */
 #ifdef DEBUG_0
 #define USR_SZ_STACK 0x300         /* user proc stack size 768B  */
 #else
 #define USR_SZ_STACK 0x100         /* user proc stack size 256B  */
 #endif /* DEBUG_0 */
 
+/* Heap memory config */
+#define HEAP_SIZE 30
+
 /* ----- Types ----- */
 typedef unsigned char U8;
 typedef unsigned int U32;
+typedef unsigned char BOOL;
 
 /* common data structures in both kernel and user spaces */
 
@@ -73,6 +81,7 @@ typedef struct proc_init
 	int m_pid;	        /* process id */ 
 	int m_priority;         /* initial priority, not used in this example. */ 
 	int m_stack_size;       /* size of stack in words */
+	BOOL b_i_process;
 	void (*mpf_start_pc) ();/* entry point of the process */    
 } PROC_INIT;
 

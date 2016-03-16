@@ -10,9 +10,7 @@ void crt_process(void) {
 		// Block until next message
 		message = receive_message(NULL);
 
-#ifdef DEBUG_0
-		//printf("forwarding message to UART: %s\n\r", message->mtext);
-#endif
+		//dprintf("forwarding message to UART: %s\n\r", message->mtext);
 		send_message(PID_UART_IPROC, message);
 
 		// Enable output interrupts

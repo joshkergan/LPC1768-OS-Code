@@ -122,14 +122,18 @@ void add_to_priority_queue(PCB *process) {
 		return;
 	
 	switch (process->m_pid) {
+		// I-processes
 		case PID_TIMER_IPROC:
 		case PID_UART_IPROC:
 			return;
+		// System processes
 		case PID_CRT:
 		case PID_KCD:
 		case PID_CLOCK:
+		case PID_SET_PRIO:
 			enqueue(&g_sys_pqueue, process);
 			break;
+		// User processes
 		default:
 			enqueue(&gp_pqueue[process->m_priority], process);
 	}

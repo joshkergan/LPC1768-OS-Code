@@ -33,6 +33,8 @@ int gm_new_messages = 0;
 /* process initialization table */
 PROC_INIT g_proc_table[NUM_PROCS]; /* holds init info for system processes and all test processes */
 extern PROC_INIT g_test_procs[NUM_TEST_PROCS];
+extern PROC_INIT g_stress_procs[NUM_STRESS_PROCS];
+
 extern uint32_t g_timer_interrupt;
 
 /**
@@ -95,7 +97,7 @@ int k_get_process_priority(int process_id) {
 	
 	__disable_irq();
 	
-	for (i = 0; i < NUM_PROCS; i++) {
+	for (i = 0; i < NUM_PROCS - NUM_STRESS_PROCS; i++) {
 		cur_program = gp_pcbs[i];
 		if (process_id == cur_program->m_pid) {
 			__enable_irq();
@@ -110,7 +112,7 @@ int k_get_process_priority(int process_id) {
 PCB *k_get_process(int pid) {
 	PCB *cur;
 	int i;
-	for (i = 0; i < NUM_PROCS; i++) {
+	for (i = 0; i < NUM_PROCS - NUM_STRESS_PROCS; i++) {
 		cur = gp_pcbs[i];
 		if (cur->m_pid == pid)
 			return cur;
@@ -129,46 +131,69 @@ void process_init()
 	int priority;
 	U32 *sp;
   
-        /* fill out the initialization table */
+  /* fill out the initialization table */
 	set_test_procs();	
 	for ( i = 0; i < NUM_TEST_PROCS; i++ ) {
 		g_proc_table[i + NUM_SYSTEM_PROCS].m_pid = g_test_procs[i].m_pid;
 		g_proc_table[i + NUM_SYSTEM_PROCS].m_priority = g_test_procs[i].m_priority;
 		g_proc_table[i + NUM_SYSTEM_PROCS].m_stack_size = g_test_procs[i].m_stack_size;
 		g_proc_table[i + NUM_SYSTEM_PROCS].mpf_start_pc = g_test_procs[i].mpf_start_pc;
+		g_proc_table[i + NUM_SYSTEM_PROCS].b_i_process = FALSE;
 	}
-	
+
+	set_stress_procs();
+	for (i = 0; i < NUM_STRESS_PROCS; i++) {
+		int offset = NUM_SYSTEM_PROCS + NUM_TEST_PROCS;
+		g_proc_table[i + offset].m_pid = g_stress_procs[i].m_pid;
+		g_proc_table[i + offset].m_priority = g_stress_procs[i].m_priority;
+		g_proc_table[i + offset].m_stack_size = g_stress_procs[i].m_stack_size;
+		g_proc_table[i + offset].mpf_start_pc = g_stress_procs[i].mpf_start_pc;
+		g_proc_table[i + offset].b_i_process = FALSE;
+	}
+
 	// Set initialization values for the system processes
 	g_proc_table[0].m_pid = PID_NULL;
 	g_proc_table[0].m_priority = 4;
 	g_proc_table[0].m_stack_size = 0x300;
+	g_proc_table[0].b_i_process = FALSE;
 	g_proc_table[0].mpf_start_pc = &k_null_process;
 	
 	g_proc_table[1].m_pid = PID_KCD;
 	g_proc_table[1].m_priority = -1;
 	g_proc_table[1].m_stack_size = 0x400;
+	g_proc_table[1].b_i_process = FALSE;
 	g_proc_table[1].mpf_start_pc = &kcd_process;
 	
 	g_proc_table[2].m_pid = PID_CRT;
 	g_proc_table[2].m_priority = -1;
 	g_proc_table[2].m_stack_size = 0x400;
+	g_proc_table[2].b_i_process = FALSE;
 	g_proc_table[2].mpf_start_pc = &crt_process;
 	
 	g_proc_table[3].m_pid = PID_CLOCK;
 	g_proc_table[3].m_priority = -1;
 	g_proc_table[3].m_stack_size = 0x400;
+	g_proc_table[3].b_i_process = FALSE;
 	g_proc_table[3].mpf_start_pc = &clock_process;
 	
-	// Set initialization values for the i-processes
-	g_proc_table[4].m_pid = PID_TIMER_IPROC;
+	g_proc_table[4].m_pid = PID_SET_PRIO;
 	g_proc_table[4].m_priority = -1;
-	g_proc_table[4].m_stack_size = 0x300;
-	g_proc_table[4].mpf_start_pc = &timer_iprocess;
+	g_proc_table[4].m_stack_size = 0x400;
+	g_proc_table[4].b_i_process = FALSE;
+	g_proc_table[4].mpf_start_pc = &set_prio_process;
 
-	g_proc_table[5].m_pid = PID_UART_IPROC;
+	// Set initialization values for the i-processes
+	g_proc_table[5].m_pid = PID_TIMER_IPROC;
 	g_proc_table[5].m_priority = -1;
 	g_proc_table[5].m_stack_size = 0x300;
-	g_proc_table[5].mpf_start_pc = &uart_iprocess;
+	g_proc_table[5].b_i_process = TRUE;
+	g_proc_table[5].mpf_start_pc = &timer_iprocess;
+
+	g_proc_table[6].m_pid = PID_UART_IPROC;
+	g_proc_table[6].m_priority = -1;
+	g_proc_table[6].m_stack_size = 0x300;
+	g_proc_table[6].b_i_process = TRUE;
+	g_proc_table[6].mpf_start_pc = &uart_iprocess;
 
 	/* initialize exception stack frame (i.e. initial context) for each process */
 	for ( i = 0; i < NUM_PROCS; i++) {
@@ -176,6 +201,7 @@ void process_init()
 		(gp_pcbs[i])->m_pid = (g_proc_table[i]).m_pid;
 		(gp_pcbs[i])->m_priority = (g_proc_table[i]).m_priority;
 		(gp_pcbs[i])->m_state = NEW;
+		(gp_pcbs[i])->b_i_process = (g_proc_table[i]).b_i_process;
 		
 		sp = alloc_stack((g_proc_table[i]).m_stack_size);
 		*(--sp)  = INITIAL_xPSR;      // user process initial xPSR  
@@ -194,9 +220,6 @@ void process_init()
 		
 		add_to_priority_queue(gp_pcbs[i]);
 	}
-#ifdef DEBUG_0
-	printf("debug\n");
-#endif
 }
 
 

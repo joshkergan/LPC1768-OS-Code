@@ -86,16 +86,14 @@ void memory_init(void)
 #endif
 	
 	/* prepare for alloc_stack() to allocate memory for stacks */
-	
 	gp_stack = (U32 *)RAM_END_ADDR;
 	if ((U32)gp_stack & 0x04) { /* 8 bytes alignment */
 		--gp_stack; 
 	}
   
 	/* allocate memory for heap*/
-	
 	gp_free_space = NULL;
-	for(p_heap = (U32 *)p_end; p_heap < gp_stack && p_heap < (U32*)p_end + 30 * HEAP_BLOCK_SIZE; p_heap += HEAP_BLOCK_SIZE) {
+	for(p_heap = (U32 *)p_end; p_heap < gp_stack && p_heap < (U32*)p_end + HEAP_SIZE*HEAP_BLOCK_SIZE; p_heap += HEAP_BLOCK_SIZE) {
 		struct free_heap_block* next_block = (struct free_heap_block *)p_heap;
 		next_block->next = gp_free_space;
 		gp_free_space = next_block;
@@ -140,9 +138,7 @@ void *k_request_memory_block(void) {
 	
 	// No free heap memory -> block thread
 	if (gp_free_space == NULL) {
-#ifdef DEBUG_0 
-		printf("Blocking process: %d\n", gp_current_process->m_pid);
-#endif /* ! DEBUG_0 */
+		dprintf("Blocking process: %d\n", gp_current_process->m_pid);
 		// suspends the process
 		gp_current_process->m_state = BLOCKED_ON_MEMORY;
 		g_num_mem_blocked++;

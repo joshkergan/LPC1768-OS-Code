@@ -57,17 +57,10 @@ int is_message(int receiver) {
 	return p_msg_boxes_start[receiver] != NULL;
 }
 
-MSG_BUF* find_message_from(int* sender_id){
+MSG_BUF* find_message_from(){
 	int m_recv_id = gp_current_process->m_pid;
 	MSG_BUF* message = p_msg_boxes_start[m_recv_id];
 	MSG_BUF* last = NULL;
-	
-	if(sender_id != NULL) {
-		while (message != NULL && message->m_send_pid != (int)sender_id) {
-			last = message;
-			message = message->mp_next;
-		}
-	}
 	
 	if (message != NULL) {
 		if (last == NULL) {
@@ -115,7 +108,7 @@ int k_send_message(int process_id, void *message_envelope){
 	increment_message_buffer(SEND, message);
 
 	// Preempt non-system processs
-	if(sending_process->m_pid < PID_CLOCK) {
+	if(!is_system_proc(process_id)) {
 		PCB* receiving_process = k_get_process(process_id);
 		if(sending_process->m_priority > receiving_process->m_priority) {
 			k_release_processor();
@@ -129,9 +122,12 @@ int k_send_message(int process_id, void *message_envelope){
 void* k_receive_message(int *sender_id){
 	MSG_BUF* message;
 	__disable_irq();
-	while ((message = find_message_from(sender_id)) == NULL) {
+	while ((message = find_message_from()) == NULL) {
 		gp_current_process->m_state = BLOCKED_ON_RECEIVE;
 		k_release_processor();
+	}
+	if(sender_id != NULL) {
+		*sender_id = message->m_send_pid;
 	}
 	increment_message_buffer(RECV, message);
 	__enable_irq();

@@ -16,8 +16,10 @@
 #define NULL 0
 
 #define NUM_TEST_PROCS 		6
-#define NUM_SYSTEM_PROCS 	6 // NULL, KCD, CRT, CLOCK, TIMER-IPROC, UART-IPROC
-#define NUM_PROCS					(NUM_TEST_PROCS + NUM_SYSTEM_PROCS)
+#define NUM_STRESS_PROCS  3
+#define NUM_SYSTEM_PROCS 	7 // NULL, KCD, CRT, CLOCK,
+														// TIMER-IPROC, UART-IPROC, SET PRIORITY
+#define NUM_PROCS					(NUM_STRESS_PROCS + NUM_TEST_PROCS + NUM_SYSTEM_PROCS)
 #define NUM_PRIORITIES 		4
 
 
@@ -39,6 +41,7 @@ typedef struct pcb
 	U32 *mp_sp;		/* stack pointer of the process */
 	U32 m_pid;		/* process id */
 	int m_priority;	/* process priority */
+	BOOL b_i_process;
 	PROC_STATE_E m_state;   /* state of the process */      
 	void *mp_assigned_mem;   /* memory returned from begin blocked */
 } PCB;

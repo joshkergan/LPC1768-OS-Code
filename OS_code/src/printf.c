@@ -226,6 +226,11 @@ void tfp_printf(char *fmt, ...)
 	va_end(va);
 	}
 
+void do_nothing(char *fmt, ...)
+	{
+	return;
+	}
+
 static void putcp(void* p,char c)
 	{
 	*(*((char**)p))++ = c;

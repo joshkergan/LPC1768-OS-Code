@@ -3,6 +3,8 @@
 
 #include "printf.h"
 
+#define TIME_INTERVAL 1000
+
 static void print_2digit(int val, char *buff) {
 	int tens = val / 10 % 10;
 	int ones = val % 10;
@@ -79,19 +81,34 @@ void clock_process(void) {
 	send_message(PID_KCD, message);
 	
 	message = request_memory_block();
-	delayed_send(PID_CLOCK, message, 1000);
+	delayed_send(PID_CLOCK, message, TIME_INTERVAL);
 	
-	while (is_running) {
+	while (1) {
 		message = receive_message(NULL);
 		if (message->m_send_pid == PID_CLOCK) {
-			time++;
-			print_time(time);
-			delayed_send(PID_CLOCK, message, 1000);
+			// only update the clock if it is running
+			if (is_running) {
+				time++;
+				print_time(time);
+				delayed_send(PID_CLOCK, message, TIME_INTERVAL);
+			}
+			else {
+				release_memory_block(message);
+				message = NULL;
+			}
 		} else if (message->mtext[0] == '%' && message->mtext[1] == 'W') {
 			switch(message->mtext[2]) {
 				case 'R':
 					// Reset
 					time = 0;
+					release_memory_block(message);
+
+					if (!is_running) {
+						// Restart the clock
+						is_running = 1;
+						message = request_memory_block();
+						delayed_send(PID_CLOCK, message, TIME_INTERVAL);
+					}
 					break;
 				case 'S':
 					// Set
@@ -102,26 +119,33 @@ void clock_process(void) {
 					minutes = read_2digit(message->mtext + 7);
 					seconds = read_2digit(message->mtext + 10);
 					
+					release_memory_block(message);
+
 					printf("Updating time: hours=%d, minutes=%d, seconds=%d\n\r",
 						hours, minutes, seconds);
 					
 					time = hours * 60 * 60 + minutes * 60 + seconds;
+					if (!is_running) {
+						// Restart the clock
+						is_running = 1;
+						message = request_memory_block();
+						delayed_send(PID_CLOCK, message, TIME_INTERVAL);
+					}
 					break;
 				case 'T':
 					// Terminate
 					is_running = 0;
+					release_memory_block(message);
 					break;
 				default:
 					break;
 			}
 			print_time(time);
-			release_memory_block(message);
-			message = NULL;
 		}
 	}
 	
-	if (message)
-		release_memory_block(message);
+	//if (message)
+	//	release_memory_block(message);
 	
-	terminate_sys_proc();
+	//terminate_sys_proc();
 }

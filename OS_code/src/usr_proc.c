@@ -10,7 +10,7 @@
 /* initialization table item */
 PROC_INIT g_test_procs[NUM_TEST_PROCS];
 
-int num_tests = 7;
+int num_tests = 8;
 int tests_passed = 0;
 int blockedOnMem = 0;
 int prempt = 0;
@@ -37,7 +37,7 @@ void set_test_procs() {
 	}
   
 	g_test_procs[0].mpf_start_pc = &proc1;
-	g_test_procs[0].m_priority   = HIGH;
+	g_test_procs[0].m_priority   = LOW;
 	
 	g_test_procs[1].mpf_start_pc = &proc2;
 	g_test_procs[1].m_priority   = LOW;
@@ -145,15 +145,36 @@ void proc2(void)
 void proc3(void)
 {
 	MSG_BUF* message;
+	MSG_BUF* message2;
+	MSG_BUF* result;
+	int pid = PID_P5;
+	int pid2 = PID_P3;
 	
-	message = (MSG_BUF*)receive_message((int*)PID_P5);
+	message = (MSG_BUF*)receive_message(&pid);
 	
 	if(prempt)
 		test_pass('7');
 	else 
 		test_fail('7');
-	release_memory_block((void*)message);
-	set_process_priority(PID_P3, LOW);
+
+	message2 = (MSG_BUF*) request_memory_block();
+
+	message2->mtype = DEFAULT;
+
+	strcpy("Message 2", message2->mtext);
+
+	delayed_send(PID_P3, message, 3000);
+	delayed_send(PID_P3, message2, 2000);
+
+	result = receive_message(&pid2);
+	if(strcmp("Message 2", result->mtext) == 0) {
+		test_pass('8');
+	} else {
+		test_fail('8');
+	}
+	result = receive_message((int*)PID_P3);
+
+	test_processes();
 	while(1)
 		release_processor();
 }
@@ -161,8 +182,9 @@ void proc3(void)
 void proc4(void)
 {
 	MSG_BUF *message;
+	int pid = PID_P5;
 	
-	message = (MSG_BUF*) receive_message((int*)PID_P5);
+	message = (MSG_BUF*) receive_message(&pid);
 
 	if (strcmp(message->mtext, "Correct!") == 0) {
 		test_pass('6');
@@ -209,7 +231,6 @@ void proc5(void)
 	prempt = 0;
 	
 	set_process_priority(PID_P5, LOW);
-	test_processes();
 	while(1) {
 		release_processor();
 	}

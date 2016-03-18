@@ -175,7 +175,7 @@ void proc3(void)
 	result = receive_message(NULL);
 
 	test_processes();
-	set_process_priority(PID_P1, LOWEST);
+	set_process_priority(PID_P1, MEDIUM);
 	set_process_priority(PID_P2, LOWEST);
 	set_process_priority(PID_P3, LOWEST);
 	set_process_priority(PID_P4, LOWEST);

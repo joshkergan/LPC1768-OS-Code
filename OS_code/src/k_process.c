@@ -37,6 +37,8 @@ extern PROC_INIT g_stress_procs[NUM_STRESS_PROCS];
 
 extern uint32_t g_timer_interrupt;
 
+PCB *k_get_process(int pid);
+
 /**
  * @brief: set the priority of a process
  * If a process gets a priority higher than the running process,
@@ -55,6 +57,14 @@ int k_set_process_priority(int process_id, int priority) {
 	if (priority < 0 || priority > 3) {
 		__enable_irq();
 		return RTX_ERR;
+	}
+	
+	process = k_get_process(process_id);
+	if (!process) {
+		if (process->b_i_process) {
+			__enable_irq();
+			return RTX_ERR;
+		}
 	}
 	
 	if (process_id == gp_current_process->m_pid) {
@@ -97,7 +107,7 @@ int k_get_process_priority(int process_id) {
 	
 	__disable_irq();
 	
-	for (i = 0; i < NUM_PROCS - NUM_STRESS_PROCS; i++) {
+	for (i = 0; i < NUM_PROCS; i++) {
 		cur_program = gp_pcbs[i];
 		if (process_id == cur_program->m_pid) {
 			__enable_irq();
@@ -112,7 +122,7 @@ int k_get_process_priority(int process_id) {
 PCB *k_get_process(int pid) {
 	PCB *cur;
 	int i;
-	for (i = 0; i < NUM_PROCS - NUM_STRESS_PROCS; i++) {
+	for (i = 0; i < NUM_PROCS; i++) {
 		cur = gp_pcbs[i];
 		if (cur->m_pid == pid)
 			return cur;

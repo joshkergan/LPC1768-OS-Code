@@ -4,12 +4,6 @@
 #endif /* DEBUG_0 */
 
 QUEUE *gp_pqueue;	/* array of queues */
-QUEUE g_sys_pqueue;	/* queue for system processes */
-
-void init_sys_queue(void) {
-	g_sys_pqueue.first = NULL;
-	g_sys_pqueue.last = NULL;
-}
 
 /**
  * @brief: add a PCB to the back of the queue
@@ -60,11 +54,6 @@ PCB * remove_by_PID(int process_id) {
 	QUEUE *q;
 	PCB *prev;
 	PCB *cur;
-	
-	// First check system queue
-	q = &g_sys_pqueue;
-	if (q->first->m_pid == process_id)
-		return dequeue(q);
 	
 	prev = q->first;
 	cur = prev->mp_next;
@@ -120,23 +109,12 @@ void add_to_priority_queue(PCB *process) {
 	// Never add the null process
 	if (process->m_pid == 0)
 		return;
-	
-	switch (process->m_pid) {
-		// I-processes
-		case PID_TIMER_IPROC:
-		case PID_UART_IPROC:
-			return;
-		// System processes
-		case PID_CRT:
-		case PID_KCD:
-		case PID_CLOCK:
-		case PID_SET_PRIO:
-			enqueue(&g_sys_pqueue, process);
-			break;
-		// User processes
-		default:
-			enqueue(&gp_pqueue[process->m_priority], process);
+
+	if(process->m_pid == PID_TIMER_IPROC || process->m_pid==PID_UART_IPROC){
+		return;
 	}
+
+	enqueue(&gp_pqueue[process->m_priority], process);
 }
 
 /**
@@ -145,14 +123,6 @@ void add_to_priority_queue(PCB *process) {
 PCB *find_first_mem_blocked(void) {	
 	int i;
 	PCB* cur_proc;
-	
-	// First check system queue
-	cur_proc = g_sys_pqueue.first;
-	while (cur_proc) {
-		if (cur_proc->m_state == BLOCKED_ON_MEMORY)
-			return cur_proc;
-		cur_proc = cur_proc->mp_next;
-	}
 	
 	// Check user processes
 	for (i = 0; i < NUM_PRIORITIES; i++) {
@@ -170,15 +140,7 @@ PCB *find_first_mem_blocked(void) {
 PCB * find_first_ready(void) {
 	int i;
 	
-	// First check system queue
-	PCB *cur_proc = g_sys_pqueue.first;
-	while (cur_proc) {
-		if (cur_proc->m_state == RDY || cur_proc->m_state == NEW)
-			return cur_proc;
-		cur_proc = cur_proc->mp_next;
-	}
-	
-	// Check user queues
+	// Check process queues
 	for (i = 0; i < NUM_PRIORITIES; i++) {
 		PCB *cur_proc = gp_pqueue[i].first;
 		while (cur_proc != NULL) {
@@ -195,7 +157,7 @@ PCB * find_first_ready(void) {
 #ifdef _DEBUG_HOTKEYS
 void print_ready(void) {
 	int i;
-	//printf("Ready processes:\n");
+	printf("Ready processes:\n");
 	for (i = 0; i < NUM_PRIORITIES; i++) {
 		PCB *cur_proc = gp_pqueue[i].first;
 		printf("priority %d: ", i);

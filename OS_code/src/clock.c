@@ -3,8 +3,6 @@
 
 #include "printf.h"
 
-#define TIME_INTERVAL 1000
-
 static void print_2digit(int val, char *buff) {
 	int tens = val / 10 % 10;
 	int ones = val % 10;
@@ -30,7 +28,7 @@ static void print_time(uint32_t time) {
 	message = request_memory_block();
 	message->mtype = DEFAULT;
 	strcpy("00:00:00\r\n", message->mtext);
-	
+
 	print_2digit(hours, message->mtext);
 	print_2digit(minutes, message->mtext + 3);
 	print_2digit(seconds, message->mtext + 6);
@@ -39,9 +37,7 @@ static void print_time(uint32_t time) {
 }
 
 static int is_valid_time(char *buff) {
-#ifdef DEBUG_0
-	printf("Validating time: %s\n\r", buff);
-#endif
+	dprintf("Validating time: %s\n\r", buff);
 	if (!(is_digit(buff[0]) &&
 				is_digit(buff[1]) &&
 				':' == buff[2] &&
@@ -81,7 +77,7 @@ void clock_process(void) {
 	send_message(PID_KCD, message);
 	
 	message = request_memory_block();
-	delayed_send(PID_CLOCK, message, TIME_INTERVAL);
+	delayed_send(PID_CLOCK, message, ONE_SECOND);
 	
 	while (1) {
 		message = receive_message(NULL);
@@ -90,7 +86,7 @@ void clock_process(void) {
 			if (is_running) {
 				time++;
 				print_time(time);
-				delayed_send(PID_CLOCK, message, TIME_INTERVAL);
+				delayed_send(PID_CLOCK, message, ONE_SECOND);
 			}
 			else {
 				release_memory_block(message);
@@ -107,7 +103,7 @@ void clock_process(void) {
 						// Restart the clock
 						is_running = 1;
 						message = request_memory_block();
-						delayed_send(PID_CLOCK, message, TIME_INTERVAL);
+						delayed_send(PID_CLOCK, message, ONE_SECOND);
 					}
 					break;
 				case 'S':
@@ -129,7 +125,7 @@ void clock_process(void) {
 						// Restart the clock
 						is_running = 1;
 						message = request_memory_block();
-						delayed_send(PID_CLOCK, message, TIME_INTERVAL);
+						delayed_send(PID_CLOCK, message, ONE_SECOND);
 					}
 					break;
 				case 'T':

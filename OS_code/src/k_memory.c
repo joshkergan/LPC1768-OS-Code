@@ -118,9 +118,13 @@ U32 *alloc_stack(U32 size_b)
 	
 	/* 8 bytes alignement adjustment to exception stack frame */
 	if ((U32)gp_stack & 0x04) {
-		--gp_stack; 
+		--gp_stack;
 	}
 	return sp;
+}
+
+BOOL is_memory_available(void) {
+	return gp_free_space != NULL;
 }
 
 /**
@@ -138,7 +142,7 @@ void *k_request_memory_block(void) {
 	
 	// No free heap memory -> block thread
 	if (gp_free_space == NULL) {
-		dprintf("Blocking process: %d\n", gp_current_process->m_pid);
+		dprintf("Blocking process: %d (0x%x) on memory\n", gp_current_process->m_pid, gp_current_process->m_pid);
 		// suspends the process
 		gp_current_process->m_state = BLOCKED_ON_MEMORY;
 		g_num_mem_blocked++;

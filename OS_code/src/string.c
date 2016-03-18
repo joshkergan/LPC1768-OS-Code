@@ -31,6 +31,17 @@ int is_prefix(char *pre, char *test) {
 	return *pre == '\0';
 }
 
+// Check if the sub occurs in test
+int is_substring(char *sub, char *test) {
+	while (*test != '\0') {
+		if (is_prefix(sub, test))
+			return 1;
+		test++;
+	}
+
+	return 0;
+}
+
 int is_digit(char c) {
 	return '0' <= c && c <= '9';
 }

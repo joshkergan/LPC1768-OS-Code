@@ -37,7 +37,7 @@ void set_test_procs() {
 	}
   
 	g_test_procs[0].mpf_start_pc = &proc1;
-	g_test_procs[0].m_priority   = LOW;
+	g_test_procs[0].m_priority   = HIGH;
 	
 	g_test_procs[1].mpf_start_pc = &proc2;
 	g_test_procs[1].m_priority   = LOW;
@@ -163,8 +163,8 @@ void proc3(void)
 
 	strcpy("Message 2", message2->mtext);
 
-	delayed_send(PID_P3, message, 3000);
-	delayed_send(PID_P3, message2, 2000);
+	delayed_send(PID_P3, message, 3 * ONE_SECOND);
+	delayed_send(PID_P3, message2, 2 * ONE_SECOND);
 
 	result = receive_message(&pid2);
 	if(strcmp("Message 2", result->mtext) == 0) {
@@ -175,6 +175,12 @@ void proc3(void)
 	result = receive_message((int*)PID_P3);
 
 	test_processes();
+	set_process_priority(PID_P1, LOWEST);
+	set_process_priority(PID_P2, LOWEST);
+	set_process_priority(PID_P3, LOWEST);
+	set_process_priority(PID_P4, LOWEST);
+	set_process_priority(PID_P5, LOWEST);
+	set_process_priority(PID_P6, LOWEST);
 	while(1)
 		release_processor();
 }
@@ -193,7 +199,7 @@ void proc4(void)
 	}
 	
 	set_process_priority(PID_P4, LOW);
-	
+
 	while(1)
 		release_processor();
 }
@@ -231,6 +237,7 @@ void proc5(void)
 	prempt = 0;
 	
 	set_process_priority(PID_P5, LOW);
+
 	while(1) {
 		release_processor();
 	}
@@ -258,6 +265,7 @@ void proc6(void)
 		test_pass('5');
 	}
 	set_process_priority(PID_P6, LOW);
+
 	while (1)
 		release_processor();
 }

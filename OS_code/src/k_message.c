@@ -92,6 +92,7 @@ void increment_message_buffer (FUNC_CALL type, MSG_BUF* message) {
 int k_send_message(int process_id, void *message_envelope){
 	MSG_BUF* message;
 	PCB* sending_process = gp_current_process;
+	PCB* receiving_process;
 	__disable_irq();
 	message = (MSG_BUF*) message_envelope;
 	
@@ -107,12 +108,10 @@ int k_send_message(int process_id, void *message_envelope){
 	
 	increment_message_buffer(SEND, message);
 
-	// Preempt non-system processs
-	if(!is_system_proc(process_id)) {
-		PCB* receiving_process = k_get_process(process_id);
-		if(sending_process->m_priority > receiving_process->m_priority) {
-			k_release_processor();
-		}
+	// Preempt if necessary
+	receiving_process = k_get_process(process_id);
+	if(sending_process->m_priority > receiving_process->m_priority) {
+		k_release_processor();
 	}
 	
 	__enable_irq();
@@ -152,8 +151,8 @@ int k_delayed_send(int pid, void *p_msg, int delay) {
 
 	__disable_irq();
 	message->m_send_pid = sending_process->m_pid;
-	message->m_kdata[0] = g_timer_count + delay;
-	message->m_kdata[1] = pid;
+	message->M_TIMESTAMP = g_timer_count + delay;
+	message->M_FORWARD_PID = pid;
 	
 	// Register the message with the Timer i-process
 	k_send_message(PID_TIMER_IPROC, message);

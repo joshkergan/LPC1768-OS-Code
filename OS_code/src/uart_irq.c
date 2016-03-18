@@ -25,18 +25,17 @@ uint32_t g_out_end = 1;
 
 uint8_t g_is_reading = 0;
 
-uint8_t message_container[128 / sizeof(uint8_t)];
-MSG_BUF *g_uart_message = (MSG_BUF *)message_container;
-
 uint8_t g_char_in;
 uint8_t g_char_out;
 
 extern int k_release_processor(void);
+extern void * k_request_memory_block(void);
 extern int k_release_memory_block(void *p_mem_blk);
 extern int k_send_message(int pid, void *p_msg);
 extern void* k_receive_message(int *sender_id);
 extern int is_message(int receiver);
 extern PCB* k_get_process(int pid);
+extern BOOL is_memory_available(void);
 
 extern PCB *gp_current_process;
 
@@ -234,11 +233,15 @@ void uart_iprocess(void)
 			case '\n':
 				if (g_is_reading) {
 					// We've finished reading a command, send it to the KCD process
+					MSG_BUF *message;
 					g_is_reading = 0;
 					strcpy("\n\r", (char *)(g_in_buffer + g_in_index));
-					//g_in_buffer[g_in_index] = '\0';
-					strcpy((char *)g_in_buffer, g_uart_message->mtext);
-					k_send_message(PID_KCD, g_uart_message);
+					if (is_memory_available()) {
+						message = k_request_memory_block();
+						message->mtype = DEFAULT;
+						strcpy((char *)g_in_buffer, message->mtext);
+						k_send_message(PID_KCD, message);
+					}
 					g_in_index = 0;
 				}
 				break;

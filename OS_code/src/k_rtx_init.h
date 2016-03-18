@@ -17,6 +17,5 @@ void k_rtx_init(void);
 extern int k_release_processor(void);
 extern void *k_request_memory_block(void);
 extern int k_release_memory_block(void *);
-extern void init_sys_queue(void);
 
 #endif /* ! K_RTX_INIT_H_ */

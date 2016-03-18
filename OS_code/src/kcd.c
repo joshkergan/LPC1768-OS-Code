@@ -11,9 +11,7 @@ KCD *g_kcd_list = NULL;
 void add_kcd_command(char *str, int pid) {
 	int i = 0;
 	KCD *command = request_memory_block();
-	#ifdef DEBUG_0
-	printf("Adding command %s\n\r", str);
-	#endif
+	dprintf("Adding command %s\n\r", str);
 	
 	command->mp_next = g_kcd_list;
 	command->m_pid = pid;
@@ -52,7 +50,6 @@ void kcd_process(void) {
 		int sender;
 		// Block until next message
 		message = receive_message(&sender);
-		//TODO: Check to make sure message has correct form
 		switch (message->mtype) {
 			case KCD_REG:
 				// Register a new command
@@ -69,11 +66,10 @@ void kcd_process(void) {
 						strcpy(message->mtext, new_message->mtext);
 						send_message(pid, (void*)new_message);
 					}
-					// The message we receive from the UART i-process is static,
-					// we NEVER want to release it. Just send a copy
-					new_message = request_memory_block();
-					strcpy(message->mtext, new_message->mtext);
-					send_message(PID_CRT, new_message);
+					// Output command to the CRT
+					send_message(PID_CRT, message);
+				} else {
+					release_memory_block(message);
 				}
 				break;
 		}

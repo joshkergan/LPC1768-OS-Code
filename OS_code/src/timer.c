@@ -137,7 +137,7 @@ void timer_iprocess(void) {
 		// Add all delayed messages to the queue
 		MSG_BUF *queue = p_dely_msg_box;
 		message = k_receive_message(NULL);
-		while (queue != NULL && queue->m_kdata[0] <= message->m_kdata[0]) {
+		while (queue != NULL && queue->M_TIMESTAMP <= message->M_TIMESTAMP) {
 			last = queue;
 			queue = queue->mp_next;
 		}
@@ -151,11 +151,11 @@ void timer_iprocess(void) {
 	}
 	
 	// Send all delayed messages
-	while(p_dely_msg_box && p_dely_msg_box->m_kdata[0] <= g_timer_count) {
+	while(p_dely_msg_box && p_dely_msg_box->M_TIMESTAMP <= g_timer_count) {
 		MSG_BUF* message = p_dely_msg_box;
 		p_dely_msg_box = p_dely_msg_box->mp_next;
 		if(message->m_recv_pid == PID_TIMER_IPROC) {
-			message->m_recv_pid = message->m_kdata[1];
+			message->m_recv_pid = message->M_FORWARD_PID;
 		}
 		k_delayed_enqueue(message);
 		gm_new_messages = 1;

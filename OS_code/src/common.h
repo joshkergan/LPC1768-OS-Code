@@ -54,9 +54,18 @@
 #define LOWEST  3
 
 /* Message Types */
-#define DEFAULT 0
-#define KCD_REG 1
-#define CRT_DISPLAY 2
+#define DEFAULT				0
+#define KCD_REG				1
+#define CRT_DISPLAY		2
+#define	COUNT_REPORT	3
+#define WAKEUP10			4
+
+/* Time intervals */
+#ifdef SIMULATOR
+#define ONE_SECOND	28
+#else
+#define ONE_SECOND	1000
+#endif
 
 /* User stack config */
 #ifdef DEBUG_0
@@ -93,6 +102,9 @@ typedef struct msgbuf
 	int m_send_pid;		/* sender pid */
 	int m_recv_pid;		/* receiver pid */
 	int m_kdata[5];		/* extra 20B kernel data place holder */
+#define M_USER_INT		m_kdata[0]
+#define M_FORWARD_PID	m_kdata[1]
+#define M_TIMESTAMP		m_kdata[2]
 #endif
 	int mtype;              /* user defined message type */
 	char mtext[1];          /* body of the message */

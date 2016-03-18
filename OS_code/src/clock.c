@@ -108,8 +108,10 @@ void clock_process(void) {
 					break;
 				case 'S':
 					// Set
-					if (!is_valid_time(message->mtext + 4))
+					if (!is_valid_time(message->mtext + 4)) {
+						release_memory_block(message);
 						break;
+					}
 					
 					hours = read_2digit(message->mtext + 4);
 					minutes = read_2digit(message->mtext + 7);
@@ -134,6 +136,7 @@ void clock_process(void) {
 					release_memory_block(message);
 					break;
 				default:
+					release_memory_block(message);
 					break;
 			}
 			print_time(time);

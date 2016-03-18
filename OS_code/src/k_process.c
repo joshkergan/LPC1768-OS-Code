@@ -154,44 +154,44 @@ void process_init()
 	// Set initialization values for the system processes
 	g_proc_table[0].m_pid = PID_NULL;
 	g_proc_table[0].m_priority = 4;
-	g_proc_table[0].m_stack_size = 0x300;
+	g_proc_table[0].m_stack_size = 0x100;
 	g_proc_table[0].b_i_process = FALSE;
 	g_proc_table[0].mpf_start_pc = &k_null_process;
 	
 	g_proc_table[1].m_pid = PID_KCD;
 	g_proc_table[1].m_priority = HIGH;
-	g_proc_table[1].m_stack_size = 0x400;
+	g_proc_table[1].m_stack_size = 0x200;
 	g_proc_table[1].b_i_process = FALSE;
 	g_proc_table[1].mpf_start_pc = &kcd_process;
 	
 	g_proc_table[2].m_pid = PID_CRT;
 	g_proc_table[2].m_priority = HIGH;
-	g_proc_table[2].m_stack_size = 0x400;
+	g_proc_table[2].m_stack_size = 0x200;
 	g_proc_table[2].b_i_process = FALSE;
 	g_proc_table[2].mpf_start_pc = &crt_process;
 	
 	g_proc_table[3].m_pid = PID_CLOCK;
 	g_proc_table[3].m_priority = HIGH;
-	g_proc_table[3].m_stack_size = 0x400;
+	g_proc_table[3].m_stack_size = 0x200;
 	g_proc_table[3].b_i_process = FALSE;
 	g_proc_table[3].mpf_start_pc = &clock_process;
 	
 	g_proc_table[4].m_pid = PID_SET_PRIO;
 	g_proc_table[4].m_priority = HIGH;
-	g_proc_table[4].m_stack_size = 0x400;
+	g_proc_table[4].m_stack_size = 0x200;
 	g_proc_table[4].b_i_process = FALSE;
 	g_proc_table[4].mpf_start_pc = &set_prio_process;
 
 	// Set initialization values for the i-processes
 	g_proc_table[5].m_pid = PID_TIMER_IPROC;
 	g_proc_table[5].m_priority = HIGH;
-	g_proc_table[5].m_stack_size = 0x300;
+	g_proc_table[5].m_stack_size = 0x200;
 	g_proc_table[5].b_i_process = TRUE;
 	g_proc_table[5].mpf_start_pc = &timer_iprocess;
 
 	g_proc_table[6].m_pid = PID_UART_IPROC;
 	g_proc_table[6].m_priority = HIGH;
-	g_proc_table[6].m_stack_size = 0x300;
+	g_proc_table[6].m_stack_size = 0x200;
 	g_proc_table[6].b_i_process = TRUE;
 	g_proc_table[6].mpf_start_pc = &uart_iprocess;
 

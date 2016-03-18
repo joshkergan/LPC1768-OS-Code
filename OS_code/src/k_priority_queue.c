@@ -55,22 +55,6 @@ PCB * remove_by_PID(int process_id) {
 	PCB *prev;
 	PCB *cur;
 	
-	prev = q->first;
-	cur = prev->mp_next;
-	while (cur) {
-		if (cur->m_pid == process_id) {
-			// Found the process, remove it from the queue
-			prev->mp_next = cur->mp_next;
-			if (q->last == cur)
-				q->last = prev;
-			
-			return cur;
-		}
-		
-		prev = cur;
-		cur = cur->mp_next;
-	}
-	
 	// Check user queues
 	for (priority = 0; priority < NUM_PRIORITIES; priority++) {
 		q = &gp_pqueue[priority];

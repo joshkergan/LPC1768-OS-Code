@@ -172,7 +172,7 @@ void proc3(void)
 	} else {
 		test_fail('8');
 	}
-	result = receive_message((int*)PID_P3);
+	result = receive_message(NULL);
 
 	test_processes();
 	set_process_priority(PID_P1, LOWEST);

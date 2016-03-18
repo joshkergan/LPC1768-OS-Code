@@ -10,7 +10,7 @@ extern void *k_receive_message(int *p_pid);
 typedef struct kcd_command {
 	struct kcd_command *mp_next;
 	uint32_t m_pid;
-	char m_command[1];
+	char m_command[3];
 } KCD;
 
 

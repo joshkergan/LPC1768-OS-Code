@@ -69,7 +69,7 @@
 
 /* User stack config */
 #ifdef DEBUG_0
-#define USR_SZ_STACK 0x300         /* user proc stack size 768B  */
+#define USR_SZ_STACK 0x200         /* user proc stack size 768B  */
 #else
 #define USR_SZ_STACK 0x100         /* user proc stack size 256B  */
 #endif /* DEBUG_0 */

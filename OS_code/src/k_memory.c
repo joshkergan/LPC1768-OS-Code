@@ -172,7 +172,11 @@ void *k_request_memory_block(void) {
  *      	if it has a higher prioity
  */
 int k_release_memory_block(void *p_mem_blk) {
-	struct free_heap_block* next_block = (struct free_heap_block *)p_mem_blk;
+	struct free_heap_block* next_block;
+	if(p_mem_blk < (void*)0x10000000) {
+		dprintf("Releasing pointer invalid 0x%X\n\r", p_mem_blk);
+	}
+	next_block = (struct free_heap_block *)p_mem_blk;
 	
 	__disable_irq();
 #ifdef DEBUG_0 

@@ -30,7 +30,7 @@ void process_A(void) {
 	int sender;
 	int num;
 
-	dprintf("Starting process A\n\r");
+	//dprintf("Starting process A\n\r");
 
 	p = request_memory_block();
 	p->mtype = KCD_REG;

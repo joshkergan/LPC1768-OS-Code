@@ -9,7 +9,7 @@
 KCD *g_kcd_list = NULL;
 
 void add_kcd_command(char *str, int pid) {
-	int i = 0;
+	//int i = 0;
 	KCD *command = request_memory_block();
 	dprintf("Adding command %s\n\r", str);
 	
@@ -19,11 +19,12 @@ void add_kcd_command(char *str, int pid) {
 	// Copy command into struct
 	// This is unsafe- could write past the end
 	// 								 of allocated memory block
-	while (*str != '\0') {
-		command->m_command[i] = *str;
-		str++;
-		i++;
-	}
+	strcpy(str, command->m_command);
+	//while (*str != '\0') {
+	//	command->m_command[i] = *str;
+	//	str++;
+	//	i++;
+	//}
 	
 	g_kcd_list = command;
 }

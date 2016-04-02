@@ -35,8 +35,6 @@ PROC_INIT g_proc_table[NUM_PROCS]; /* holds init info for system processes and a
 extern PROC_INIT g_test_procs[NUM_TEST_PROCS];
 extern PROC_INIT g_stress_procs[NUM_STRESS_PROCS];
 
-extern uint32_t g_timer_interrupt;
-
 PCB *k_get_process(int pid);
 
 /**

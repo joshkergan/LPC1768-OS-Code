@@ -1,3 +1,5 @@
+#include <LPC17xx.h>
+
 #include "rtx.h"
 #include "uart_polling.h"
 #include "usr_proc.h"
@@ -6,6 +8,8 @@
 #ifdef DEBUG_0
 #include "printf.h"
 #endif /* DEBUG_0 */
+
+#define current_time() (((LPC_TIM_TypeDef *) LPC_TIM1)->TC)
 
 /* initialization table item */
 PROC_INIT g_test_procs[NUM_TEST_PROCS];
@@ -150,6 +154,14 @@ void proc3(void)
 	int pid = PID_P5;
 	int pid2 = PID_P3;
 	
+	// Start and finish times to measure primitive run times
+	unsigned int send_message_start;
+	unsigned int send_message_finish;
+	unsigned int receive_message_start;
+	unsigned int receive_message_finish;
+	unsigned int request_memory_block_start;
+	unsigned int request_memory_block_finish;
+
 	message = (MSG_BUF*)receive_message(&pid);
 	
 	if(prempt)
@@ -172,10 +184,36 @@ void proc3(void)
 	} else {
 		test_fail('8');
 	}
+	if (result)
+		release_memory_block(result);
+
 	result = receive_message(NULL);
+	if (result)
+		release_memory_block(result);
 
 	test_processes();
-	set_process_priority(PID_P1, MEDIUM);
+
+	// Time the processes
+	request_memory_block_start = current_time();
+	message = (MSG_BUF*) request_memory_block();
+	request_memory_block_finish = current_time();
+
+	send_message_start = current_time();
+	send_message(PID_P3, message);
+	send_message_finish = current_time();
+
+	receive_message_start = current_time();
+	message = receive_message(NULL);
+	receive_message_finish = current_time();
+
+	if (message)
+		release_memory_block(message);
+
+	printf("send_message runtime = %d microseconds\n\r", (send_message_finish - send_message_start) * 10 / 25);
+	printf("receive_message runtime = %d microseconds\n\r", (receive_message_finish - receive_message_start) * 10 / 25);
+	printf("request_memory_block runtime = %d microseconds\n\r", (request_memory_block_finish - request_memory_block_start) * 10 / 25);
+
+	set_process_priority(PID_P1, LOWEST);
 	set_process_priority(PID_P2, LOWEST);
 	set_process_priority(PID_P3, LOWEST);
 	set_process_priority(PID_P4, LOWEST);

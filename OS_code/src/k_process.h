@@ -31,7 +31,6 @@ extern void add_to_priority_queue(PCB *); /* Add a process to the priority queue
 extern PCB *find_first_mem_blocked(void);  /* Retrieve the highest priority blocked process */
 extern PCB *find_first_ready(void);    /* Retrieve the highest priority ready process */
 
-extern struct free_heap_block* gp_free_space;
 extern U32 *alloc_stack(U32 size_b);   /* allocate stack for a process */
 extern void __rte(void);               /* pop exception stack frame */
 extern void set_test_procs(void);      /* test process initial set up */

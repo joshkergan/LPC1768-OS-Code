@@ -22,3 +22,5 @@
 *.uvgui.*
 *.uvopt
 *.plg
+*.sublime-project
+*.sublime-workspace

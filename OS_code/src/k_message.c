@@ -31,15 +31,18 @@ MSG_INFO msg_buf[MSG_BUF_COUNT];
 int msg_buf_index = 0;
 
 
-void unblock_receiver (int m_pid) {
+BOOL unblock_receiver(int m_pid) {
 	int i;
+	BOOL proc_unblocked = FALSE;
 	PCB* cur_program;
 	for (i = 0; i < NUM_PROCS && m_pid != gp_pcbs[i]->m_pid; i++) {}
 	cur_program = gp_pcbs[i];
 	
 	if (cur_program->m_state == BLOCKED_ON_RECEIVE) {
 		cur_program->m_state = RDY;
+		proc_unblocked = TRUE;
 	}
+	return proc_unblocked;
 }
 
 void enqueue_message(int m_recv_id, MSG_BUF* p_msg){
@@ -75,7 +78,7 @@ MSG_BUF* find_message_from(){
 	return message;
 }
 
-void increment_message_buffer (FUNC_CALL type, MSG_BUF* message) {
+void increment_message_buffer(FUNC_CALL type, MSG_BUF* message) {
 	int j;
 	MSG_INFO info = msg_buf[msg_buf_index];
 	info.m_sender_pid = message->m_send_pid;
@@ -93,6 +96,7 @@ int k_send_message(int process_id, void *message_envelope){
 	MSG_BUF* message;
 	PCB* sending_process = gp_current_process;
 	PCB* receiving_process;
+	BOOL may_preempt;
 	__disable_irq();
 	message = (MSG_BUF*) message_envelope;
 	
@@ -104,13 +108,13 @@ int k_send_message(int process_id, void *message_envelope){
 	message->m_recv_pid = process_id;
 	
 	enqueue_message(process_id, message);
-	unblock_receiver(process_id);
+	may_preempt = unblock_receiver(process_id);
 	
 	increment_message_buffer(SEND, message);
 
 	// Preempt if necessary
 	receiving_process = k_get_process(process_id);
-	if(sending_process->m_priority > receiving_process->m_priority) {
+	if(may_preempt && sending_process->m_priority > receiving_process->m_priority) {
 		k_release_processor();
 	}
 	

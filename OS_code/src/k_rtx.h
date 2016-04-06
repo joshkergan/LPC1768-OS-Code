@@ -43,7 +43,7 @@ typedef struct pcb
 	int m_priority;	/* process priority */
 	BOOL b_i_process;
 	PROC_STATE_E m_state;   /* state of the process */      
-	void *mp_assigned_mem;   /* memory returned from begin blocked */
+	void *mp_assigned_mem;   /* memory returned from being blocked */
 } PCB;
 
 typedef struct pcb_queue
